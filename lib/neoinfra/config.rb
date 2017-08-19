@@ -15,6 +15,10 @@ module NeoInfra
       )
     end
 
+    def neo4j
+      @config['neo4j']
+    end
+
     def accounts
       @config['accounts']
     end
