@@ -2,5 +2,6 @@
 
 # The supplies all of the various neoinfra info
 module NeoInfra
+  require 'neoinfra/config'
   require 'neoinfra/accounts'
 end
