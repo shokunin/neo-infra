@@ -17,15 +17,15 @@ module NeoInfra
   class Accounts
     attr_reader :accounts
 
-    def initialize
+    def initialize(cfg='config.yaml')
       @accounts = YAML.load_file(
         File.join(File.dirname(File.expand_path(__FILE__)),
-                  '..', '..', 'accounts.yaml')
+                  '..', '..', cfg)
       )
     end
 
     def list
-      accounts
+      accounts['accounts']
     end
   end
 end

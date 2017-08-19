@@ -1,0 +1,10 @@
+---
+
+neo4j:
+  :host: localhost
+  :port: 7474
+
+accounts:
+  - :name: test
+    :key: test_key
+    :secret: test_secret
