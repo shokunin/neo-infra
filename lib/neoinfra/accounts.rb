@@ -18,7 +18,6 @@ module NeoInfra
 
       @cfg.accounts.each do |account|
         base_conf = {
-          provider: 'AWS',
           aws_access_key_id: account[:key],
           aws_secret_access_key: account[:secret]
         }
