@@ -37,8 +37,8 @@ module NeoInfra
                            vpc.tags['Name']
                          else
                            vpc.id
-                                   end
-                           end
+                         end
+                       end
             vpc_id = Vpc.new(
               vpc_id: vpc.id,
               name: vpc_name,
@@ -64,6 +64,7 @@ module NeoInfra
             sn = Subnet.new(
               subnet_id: subnet.subnet_id,
               cidr: subnet.cidr_block,
+              name: subnet_name,
               ip_count: subnet.available_ip_address_count,
               state: subnet.state
             )
