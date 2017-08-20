@@ -15,7 +15,7 @@ module NeoInfra
       )
 
       @config.keys.each do |c|
-        define_singleton_method(:"#{c}") do
+        define_singleton_method(c.to_sym) do
           @config[c]
         end
       end
