@@ -25,32 +25,51 @@ module NeoInfra
           aws_secret_access_key: account[:secret]
         }
         aws.regions.each do |region|
-          region_conf = {:region => region['regionName'] }
+          region_conf = { region: region['regionName'] }
           new_conn = Fog::Compute.new(region_conf.merge(base_conf))
           # Get VPCs
           new_conn.vpcs.all.each do |vpc|
-            if Vpc.where(vpc_id: vpc.id).length < 1
-              if vpc.tags.empty?
-                vpc_name = vpc.id
-              else
-                if vpc.tags.has_key? "Name"
-                  vpc_name = vpc.tags['Name']
-                else
-                  vpc_name = vpc.id
-                end
-              end
-              vpc_id = Vpc.new(
-                :vpc_id => vpc.id,
-                :name => vpc_name,
-                :cidr => vpc.cidr_block,
-                :state => vpc.state,
-                :default => vpc.is_default.to_s
-              )
-              vpc_id.save
-              AccountVpc.create(from_node: vpc_id, to_node: AwsAccount.where(name: account[:name]).first )
-            end
+            next unless Vpc.where(vpc_id: vpc.id).empty?
+            vpc_name = if vpc.tags.empty?
+                         vpc.id
+                       else
+                         if vpc.tags.key? 'Name'
+                           vpc.tags['Name']
+                         else
+                           vpc.id
+                                   end
+                           end
+            vpc_id = Vpc.new(
+              vpc_id: vpc.id,
+              name: vpc_name,
+              cidr: vpc.cidr_block,
+              state: vpc.state,
+              default: vpc.is_default.to_s
+            )
+            vpc_id.save
+            AccountVpc.create(from_node: vpc_id, to_node: AwsAccount.where(name: account[:name]).first)
           end
-        # Get all Subnets
+          # Get all Subnets
+          new_conn.subnets.all.each do |subnet|
+            next unless Subnet.where(subnet_id: subnet.subnet_id).empty?
+            subnet_name = if subnet.tag_set.empty?
+                            subnet.subnet_id
+                          else
+                            if subnet.tag_set.key? 'Name'
+                              subnet.tag_set['Name']
+                            else
+                              subnet.subnet_id
+                            end
+                          end
+            sn = Subnet.new(
+              subnet_id: subnet.subnet_id,
+              cidr: subnet.cidr_block,
+              ip_count: subnet.available_ip_address_count,
+              state: subnet.state
+            )
+            sn.save
+            VpcSubnet.create(from_node: sn, to_node: Vpc.where(vpc_id: subnet.vpc_id).first )
+          end
         end
       end
     end
