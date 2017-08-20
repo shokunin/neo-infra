@@ -8,6 +8,8 @@ class Vpc
   property :vpc_id, constraint: :unique
   property :name
   property :cidr
+  property :default
+  property :state
   has_one :out, :region, rel_class: :VpcRegion
   has_one :out, :owned, rel_class: :AccountVpc
   has_many :out, :az, rel_class: :VpcAz

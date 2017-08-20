@@ -27,6 +27,7 @@ module NeoInfra
         aws.regions.each do |region|
           region_conf = {:region => region['regionName'] }
           new_conn = Fog::Compute.new(region_conf.merge(base_conf))
+          # Get VPCs
           new_conn.vpcs.all.each do |vpc|
             if Vpc.where(vpc_id: vpc.id).length < 1
               if vpc.tags.empty?
@@ -38,11 +39,18 @@ module NeoInfra
                   vpc_name = vpc.id
                 end
               end
-              vpc_id = Vpc.new(:vpc_id => vpc.id, :name => vpc_name, :cidr => vpc.cidr_block)
+              vpc_id = Vpc.new(
+                :vpc_id => vpc.id,
+                :name => vpc_name,
+                :cidr => vpc.cidr_block,
+                :state => vpc.state,
+                :default => vpc.is_default.to_s
+              )
               vpc_id.save
               AccountVpc.create(from_node: vpc_id, to_node: AwsAccount.where(name: account[:name]).first )
             end
           end
+        # Get all Subnets
         end
       end
     end

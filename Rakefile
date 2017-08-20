@@ -31,11 +31,12 @@ task :load_accounts do
   j.load
 end
 
-desc 'Load accounts into the neo4j container'
+desc 'Load VPCs into the neo4j container'
 task :load_vpcs do
   j = NeoInfra::Vpcs.new
   j.load
 end
 
+desc 'Load Everything'
 task load_all: %i[load_accounts load_vpcs]
 task full_test: %i[rubocop spec]
