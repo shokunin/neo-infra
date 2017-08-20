@@ -10,4 +10,5 @@ class AwsAccount
   # We get the md5 since so we can search if we only know the creds
   property :key_md5
   property :secret_md5
+  property :user_id
 end
