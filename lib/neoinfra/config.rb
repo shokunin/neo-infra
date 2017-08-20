@@ -13,14 +13,12 @@ module NeoInfra
         File.join(File.dirname(File.expand_path(__FILE__)),
                   '..', '..', cfg)
       )
-    end
 
-    def neo4j
-      @config['neo4j']
-    end
-
-    def accounts
-      @config['accounts']
+      @config.keys.each do |c|
+        define_singleton_method(:"#{c}") do
+          @config[c]
+        end
+      end
     end
   end
 end
