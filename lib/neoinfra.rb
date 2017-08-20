@@ -4,4 +4,6 @@
 module NeoInfra
   require 'neoinfra/config'
   require 'neoinfra/accounts'
+  require 'neoinfra/aws'
+  require 'neoinfra/vpcs'
 end

@@ -14,6 +14,7 @@ require 'rubocop/rake_task'
 require 'rake'
 require 'rspec/core/rake_task'
 require 'neoinfra/accounts'
+require 'neoinfra/vpcs'
 
 RuboCop::RakeTask.new(:rubocop) do |t|
   t.options = ['--display-cop-names']
@@ -30,4 +31,11 @@ task :load_accounts do
   j.load
 end
 
+desc 'Load accounts into the neo4j container'
+task :load_vpcs do
+  j = NeoInfra::Vpcs.new
+  j.load
+end
+
+task load_all: %i[load_accounts load_vpcs]
 task full_test: %i[rubocop spec]
