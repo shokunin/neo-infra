@@ -25,7 +25,7 @@ module NeoInfra
           aws_secret_access_key: account[:secret]
         }
         aws.regions.each do |region|
-          region_conf = { region: region['regionName'] }
+          region_conf = { region: region }
           new_conn = Fog::Compute.new(region_conf.merge(base_conf))
           # Get VPCs
           new_conn.vpcs.all.each do |vpc|
