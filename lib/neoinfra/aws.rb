@@ -2,7 +2,9 @@
 
 require 'accounts'
 require 'regions'
+require 'mime-types'
 require 'fog'
+require 's3'
 require 'neo4j'
 require 'neoinfra/config'
 
@@ -54,5 +56,25 @@ module NeoInfra
       end
     end
 
+    def load_buckets
+      @cfg = NeoInfra::Config.new
+      neo4j_url = "http://#{@cfg.neo4j[:host]}:#{@cfg.neo4j[:port]}"
+      Neo4j::Session.open(:server_db, neo4j_url)
+      @cfg.accounts.each do |account|
+        base_conf = {
+          provider: 'AWS',
+          aws_access_key_id: account[:key],
+          aws_secret_access_key: account[:secret]
+        }
+        s = Fog::Storage.new(base_conf)
+        s.directories.each do |bucket|
+          next unless Bucket.where(name: bucket.key).empty?
+          b = Bucket.new(name: bucket.key)
+          b.save
+          BucketRegion.create(from_node: b, to_node: Region.where(region: bucket.location).first )
+          BucketAccount.create(from_node: b, to_node: AwsAccount.where(name: account[:name]).first )
+        end
+      end
+    end
   end
 end

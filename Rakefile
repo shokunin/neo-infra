@@ -44,6 +44,13 @@ task :load_regions do
   j.load_regions
 end
 
+desc 'Load S3 Buckets'
+task :load_buckets do
+  j = NeoInfra::Aws.new
+  j.load_buckets
+end
+
+
 desc 'Load Everything'
-task load_all: %i[load_accounts load_regions load_vpcs]
+task load_all: %i[load_accounts load_regions load_vpcs load_buckets]
 task full_test: %i[rubocop spec]
