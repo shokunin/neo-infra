@@ -41,3 +41,7 @@ All S3 buckets by size
 MATCH (n:Bucket)-[o:owner]-(a:AwsAccount) RETURN n.name, n.size, a.name ORDER by n.size DESC
 ```
 
+List out all subnets by instance count
+```
+MATCH (i: Node)-[r:subnet]-(s:Subnet)-[q:subnet]-(v:Vpc)-[o:owned]-(a:AwsAccount) WITH s, v, a, count(i) as nc RETURN s.cidr, v.name, a.name, nc ORDER by nc DESC
+```
