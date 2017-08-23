@@ -48,6 +48,7 @@ module NeoInfra
             )
             vpc_id.save
             AccountVpc.create(from_node: vpc_id, to_node: AwsAccount.where(name: account[:name]).first)
+            VpcRegion.create(from_node: vpc_id, to_node: Region.where(region: region).first )
           end
           # Get all Subnets
           new_conn.subnets.all.each do |subnet|
@@ -70,6 +71,7 @@ module NeoInfra
             )
             sn.save
             VpcSubnet.create(from_node: sn, to_node: Vpc.where(vpc_id: subnet.vpc_id).first )
+            SubnetAz.create(from_node: sn, to_node: Az.where(az: subnet.availability_zone).first )
           end
         end
       end

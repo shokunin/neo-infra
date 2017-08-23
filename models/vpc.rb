@@ -45,3 +45,19 @@ class VpcSubnet
   to_class :Vpc
   type :subnet
 end
+
+# Relationship between the VPC and the Region
+class VpcRegion
+  include Neo4j::ActiveRel
+  from_class :Vpc
+  to_class :Region
+  type :region
+end
+
+# Relationship between the Subnet and the AZ
+class SubnetAz
+  include Neo4j::ActiveRel
+  from_class :Subnet
+  to_class :Az
+  type :az
+end

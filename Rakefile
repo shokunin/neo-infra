@@ -15,6 +15,7 @@ require 'rake'
 require 'rspec/core/rake_task'
 require 'neoinfra/accounts'
 require 'neoinfra/vpcs'
+require 'neoinfra/aws'
 
 RuboCop::RakeTask.new(:rubocop) do |t|
   t.options = ['--display-cop-names']
@@ -37,6 +38,12 @@ task :load_vpcs do
   j.load
 end
 
+desc 'Load Region and Availability Zone information'
+task :load_regions do
+  j = NeoInfra::Aws.new
+  j.load_regions
+end
+
 desc 'Load Everything'
-task load_all: %i[load_accounts load_vpcs]
+task load_all: %i[load_accounts load_regions load_vpcs]
 task full_test: %i[rubocop spec]
