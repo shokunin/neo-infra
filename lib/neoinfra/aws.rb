@@ -7,6 +7,7 @@ require 'fog'
 require 's3'
 require 'neo4j'
 require 'neoinfra/config'
+require 'neoinfra/cloudwatch'
 
 # NeoInfra Account information
 module NeoInfra
@@ -58,6 +59,7 @@ module NeoInfra
 
     def load_buckets
       @cfg = NeoInfra::Config.new
+      cw = NeoInfra::Cloudwatch.new
       neo4j_url = "http://#{@cfg.neo4j[:host]}:#{@cfg.neo4j[:port]}"
       Neo4j::Session.open(:server_db, neo4j_url)
       @cfg.accounts.each do |account|
@@ -69,7 +71,10 @@ module NeoInfra
         s = Fog::Storage.new(base_conf)
         s.directories.each do |bucket|
           next unless Bucket.where(name: bucket.key).empty?
-          b = Bucket.new(name: bucket.key)
+          b = Bucket.new(
+            name: bucket.key,
+            size: cw.get_bucket_size(account[:key], account[:secret], bucket.location, bucket.key,)
+          )
           b.save
           BucketRegion.create(from_node: b, to_node: Region.where(region: bucket.location).first )
           BucketAccount.create(from_node: b, to_node: AwsAccount.where(name: account[:name]).first )
