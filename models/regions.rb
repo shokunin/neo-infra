@@ -1,4 +1,4 @@
-# frozen_string_literal: true
+#buckets frozen_string_literal: true
 
 require 'neo4j'
 
