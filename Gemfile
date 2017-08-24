@@ -3,9 +3,9 @@
 source 'http://rubygems.org'
 
 gem 'fog'
+gem 'mime-types'
 gem 'neo4j', '7.2.0'
 gem 'rspec'
-gem 'mime-types'
 gem 'rubytree'
 
 group :development do

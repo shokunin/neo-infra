@@ -26,7 +26,6 @@ module NeoInfra
           region_conf = { region: region }
           new_conn = Fog::Compute.new(region_conf.merge(base_conf))
           new_conn.servers.all.each do |ec2|
-
             if SshKey.where(name: ec2.key_name).empty?
               s = SshKey.new(
                 name: ec2.key_name,
@@ -38,13 +37,13 @@ module NeoInfra
 
             next unless Node.where(node_id: ec2.id).empty?
             node_name = if ec2.tags.empty?
-                         ec2.id
-                       else
-                         if ec2.tags.key? 'Name'
-                           ec2.tags['Name']
-                         else
-                           ec2.id
-                         end
+                          ec2.id
+                        else
+                          if ec2.tags.key? 'Name'
+                            ec2.tags['Name']
+                          else
+                            ec2.id
+                          end
                        end
             n = Node.new(
               name: node_name,
@@ -53,7 +52,7 @@ module NeoInfra
               public_ip: ec2.public_ip_address,
               size: ec2.flavor_id,
               state: ec2.state,
-              ami: ec2.image_id,
+              ami: ec2.image_id
             )
             n.save
             NodeAccount.create(from_node: n, to_node: AwsAccount.where(name: account[:name]).first)
