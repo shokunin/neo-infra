@@ -32,12 +32,10 @@ module NeoInfra
             next unless Vpc.where(vpc_id: vpc.id).empty?
             vpc_name = if vpc.tags.empty?
                          vpc.id
+                       elsif vpc.tags.key? 'Name'
+                         vpc.tags['Name']
                        else
-                         if vpc.tags.key? 'Name'
-                           vpc.tags['Name']
-                         else
-                           vpc.id
-                         end
+                         vpc.id
                        end
             vpc_id = Vpc.new(
               vpc_id: vpc.id,
@@ -55,12 +53,10 @@ module NeoInfra
             next unless Subnet.where(subnet_id: subnet.subnet_id).empty?
             subnet_name = if subnet.tag_set.empty?
                             subnet.subnet_id
+                          elsif subnet.tag_set.key? 'Name'
+                            subnet.tag_set['Name']
                           else
-                            if subnet.tag_set.key? 'Name'
-                              subnet.tag_set['Name']
-                            else
-                              subnet.subnet_id
-                            end
+                            subnet.subnet_id
                           end
             sn = Subnet.new(
               subnet_id: subnet.subnet_id,

@@ -38,13 +38,11 @@ module NeoInfra
             next unless Node.where(node_id: ec2.id).empty?
             node_name = if ec2.tags.empty?
                           ec2.id
+                        elsif ec2.tags.key? 'Name'
+                          ec2.tags['Name']
                         else
-                          if ec2.tags.key? 'Name'
-                            ec2.tags['Name']
-                          else
-                            ec2.id
-                          end
-                       end
+                          ec2.id
+                        end
             n = Node.new(
               name: node_name,
               node_id: ec2.id,

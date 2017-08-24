@@ -2,6 +2,7 @@
 
 require 'neo4j'
 
+# Node setup
 class Node
   include Neo4j::ActiveNode
   property :node_id, constraint: :unique
@@ -17,12 +18,14 @@ class Node
   has_one :out, :account, rel_class: :NodeAccount
 end
 
+# SSH key class
 class SshKey
   include Neo4j::ActiveNode
   property :name
   property :account
 end
 
+# Relationship with subnet
 class NodeSubnet
   include Neo4j::ActiveRel
   from_class :Node
@@ -30,6 +33,7 @@ class NodeSubnet
   type :subnet
 end
 
+# Relationship with az
 class NodeAz
   include Neo4j::ActiveRel
   from_class :Node
@@ -37,6 +41,7 @@ class NodeAz
   type :az
 end
 
+# Relationship with key
 class NodeSshKey
   include Neo4j::ActiveRel
   from_class :Node
@@ -44,6 +49,7 @@ class NodeSshKey
   type :sshkey
 end
 
+# Relationship with account
 class NodeAccount
   include Neo4j::ActiveRel
   from_class :Node
@@ -51,6 +57,7 @@ class NodeAccount
   type :owner
 end
 
+# Relationship with account
 class SshKeyAccount
   include Neo4j::ActiveRel
   from_class :SshKey
