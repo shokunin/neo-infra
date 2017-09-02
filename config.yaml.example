@@ -8,6 +8,9 @@ accounts:
   - :name: test
     :key: test_key
     :secret: test_secret
+  - :name: test2
+    :key: test2_key
+    :secret: test2_secret
 
 tag_policy:
   - :required:
