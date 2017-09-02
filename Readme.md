@@ -1,5 +1,16 @@
 # neo-infra
 
+
+## Auditing
+
+To audit resources to ensure that they are properly tagged run
+
+```
+rake audit_all
+```
+
+See the tag_policy section of the config.yaml.example file for ideas
+
 ## Running
 
 1) Download and run neo4j container

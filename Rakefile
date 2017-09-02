@@ -12,11 +12,9 @@ task default: :full_test
 
 require 'rubocop/rake_task'
 require 'rake'
+require 'pp'
 require 'rspec/core/rake_task'
-require 'neoinfra/accounts'
-require 'neoinfra/vpcs'
-require 'neoinfra/aws'
-require 'neoinfra/nodes'
+require 'neoinfra'
 
 RuboCop::RakeTask.new(:rubocop) do |t|
   t.options = ['--display-cop-names']
@@ -65,3 +63,12 @@ end
 desc 'Load Everything'
 task load_all: %i[load_accounts load_regions load_vpcs load_buckets load_nodes]
 task full_test: %i[rubocop spec]
+
+task :audit_nodes do
+  puts 'auditing Nodes'
+  j = NeoInfra::Audit.new
+  pp j.audit_nodes
+end
+
+desc 'Tag Audit'
+task audit_all: %i[audit_nodes]

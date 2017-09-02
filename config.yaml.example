@@ -16,3 +16,4 @@ tag_policy:
     - Environment
   - :recommended:
     - Product
+    - Name
