@@ -8,3 +8,11 @@ accounts:
   - :name: test
     :key: test_key
     :secret: test_secret
+
+tag_policy:
+  - :required:
+    - Application
+    - Owner
+    - Environment
+  - :recommended:
+    - Product
