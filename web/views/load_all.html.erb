@@ -1,6 +1,6 @@
 <h2 class="title"><br><br><center>Loading Data</center></h2>
 
-<% ['accounts'].each do |ep| %>
+<% ['accounts', 'regions', 'vpcs'].each do |ep| %>
 
 <script>
 $.get( "/load/<%= ep %>", function( data ) {

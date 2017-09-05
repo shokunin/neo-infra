@@ -1,16 +1,24 @@
 # frozen_string_literal: true
 
+require 'neoinfra'
 require 'vpc'
 require 'accounts'
 require 'fog'
 require 'neo4j'
-require 'neoinfra/aws'
-require 'neoinfra/config'
 
 # NeoInfra Account information
 module NeoInfra
   # Provide informations about the accounts available
   class Vpcs
+    def non_default_vpc_count
+      p Vpc.all
+      21
+    end
+
+    def default_vpc_count
+      22
+    end
+
     def load
       aws = NeoInfra::Aws.new
       @cfg = NeoInfra::Config.new
@@ -32,7 +40,7 @@ module NeoInfra
             next unless Vpc.where(vpc_id: vpc.id).empty?
             vpc_name = if vpc.tags.empty?
                          vpc.id
-                       elsif vpc.tags.key? 'Name'
+                       elsif vpc.tags.has_key? 'Name'
                          vpc.tags['Name']
                        else
                          vpc.id

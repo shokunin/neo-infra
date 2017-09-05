@@ -25,6 +25,14 @@ module NeoInfra
       conn.describe_regions.data[:body]['regionInfo'].collect { |x| x['regionName'] }
     end
 
+    def region_count
+      Region.all.length
+    end
+
+    def az_count
+      Az.all.length
+    end
+
     def azs(region)
       @cfg = NeoInfra::Config.new
       account = @cfg.accounts.first
