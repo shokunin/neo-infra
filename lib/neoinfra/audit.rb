@@ -22,6 +22,7 @@ module NeoInfra
         }
         aws.regions.each do |region|
           region_conf = { region: region }
+          #Get Instances
           new_conn = Fog::Compute.new(region_conf.merge(base_conf))
           new_conn.servers.all.each do |ec2|
             %i[required recommended]. each do |a|
