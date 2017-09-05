@@ -1,0 +1,14 @@
+<h2 class="title"><br><br><center>Loading Data</center></h2>
+
+<% ['accounts'].each do |ep| %>
+
+<script>
+$.get( "/load/<%= ep %>", function( data ) {
+  $( ".result" ).html( data );
+  $("#div<%= ep %>").html("<h4>" + data + "</h4>");
+});
+</script>
+
+<div id="div<%= ep %>"><h4>Begin Loading <%= ep %></h4></div>
+
+<% end %>
