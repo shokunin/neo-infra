@@ -10,10 +10,9 @@ require 'neoinfra/config'
 module NeoInfra
   # Provide informations about the accounts available
   class Accounts
-
     def list_names
       @cfg = NeoInfra::Config.new
-      @cfg.accounts.map{ |x| x[:name] }
+      @cfg.accounts.map { |x| x[:name] }
     end
 
     def load

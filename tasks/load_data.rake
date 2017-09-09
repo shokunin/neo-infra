@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 namespace :load_data do
-
   desc 'Load accounts into the neo4j container'
   task :accounts do
     puts 'loading accounts'
@@ -39,5 +38,4 @@ namespace :load_data do
 
   desc 'Load Everything'
   task all: %i[accounts regions vpcs buckets nodes]
-
 end

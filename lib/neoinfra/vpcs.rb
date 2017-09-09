@@ -40,7 +40,7 @@ module NeoInfra
             next unless Vpc.where(vpc_id: vpc.id).empty?
             vpc_name = if vpc.tags.empty?
                          vpc.id
-                       elsif vpc.tags.has_key? 'Name'
+                       elsif vpc.tags.key? 'Name'
                          vpc.tags['Name']
                        else
                          vpc.id
