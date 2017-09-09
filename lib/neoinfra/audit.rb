@@ -2,8 +2,8 @@
 
 require 'nodes'
 require 'accounts'
-require 'fog'
-require 'neoinfra/aws'
+require 'fog-aws'
+require 'neoinfra'
 
 # NeoInfra Account information
 module NeoInfra

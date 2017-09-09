@@ -2,7 +2,7 @@
 
 require 'accounts'
 require 'yaml'
-require 'fog'
+require 'fog-aws'
 require 'neo4j'
 require 'neoinfra/config'
 

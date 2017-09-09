@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'fog'
+require 'fog-aws'
 require 'neoinfra/cloudwatch'
 
 # NeoInfra Account information

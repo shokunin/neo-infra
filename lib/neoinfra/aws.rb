@@ -3,7 +3,7 @@
 require 'accounts'
 require 'regions'
 require 'mime-types'
-require 'fog'
+require 'fog-aws'
 require 's3'
 require 'neo4j'
 require 'neoinfra/config'

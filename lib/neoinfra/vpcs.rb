@@ -3,7 +3,7 @@
 require 'neoinfra'
 require 'vpc'
 require 'accounts'
-require 'fog'
+require 'fog-aws'
 require 'neo4j'
 
 # NeoInfra Account information
