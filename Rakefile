@@ -16,6 +16,8 @@ require 'pp'
 require 'rspec/core/rake_task'
 require 'neoinfra'
 
+Dir.glob('tasks/*.rake').each { |r| import r }
+
 RuboCop::RakeTask.new(:rubocop) do |t|
   t.options = ['--display-cop-names']
 end
@@ -24,51 +26,3 @@ RSpec::Core::RakeTask.new(:spec) do |t|
   t.pattern = Dir.glob('spec/*_spec.rb')
   t.rspec_opts = '--format documentation'
 end
-
-desc 'Load accounts into the neo4j container'
-task :load_accounts do
-  puts 'loading accounts'
-  j = NeoInfra::Accounts.new
-  j.load
-end
-
-desc 'Load VPCs into the neo4j container'
-task :load_vpcs do
-  puts 'loading vpcs'
-  j = NeoInfra::Vpcs.new
-  j.load
-end
-
-desc 'Load Region and Availability Zone information'
-task :load_regions do
-  puts 'loading regions'
-  j = NeoInfra::Aws.new
-  j.load_regions
-end
-
-desc 'Load S3 Buckets'
-task :load_buckets do
-  puts 'loading buckets'
-  j = NeoInfra::Aws.new
-  j.load_buckets
-end
-
-desc 'Load Nodes'
-task :load_nodes do
-  puts 'loading nodes'
-  j = NeoInfra::Nodes.new
-  j.load_nodes
-end
-
-desc 'Load Everything'
-task load_all: %i[load_accounts load_regions load_vpcs load_buckets load_nodes]
-task full_test: %i[rubocop spec]
-
-task :audit_nodes do
-  puts 'auditing Nodes'
-  j = NeoInfra::Audit.new
-  pp j.audit_nodes
-end
-
-desc 'Tag Audit'
-task audit_all: %i[audit_nodes]
