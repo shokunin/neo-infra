@@ -19,7 +19,7 @@ namespace :load_data do
   task :regions do
     puts 'loading regions'
     j = NeoInfra::Aws.new
-    j.regions
+    j.load_regions
   end
 
   desc 'Load S3 Buckets'
