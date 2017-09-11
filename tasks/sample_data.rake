@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'yaml'
+require 'pp'
 
 namespace :sample_data do
 
@@ -58,7 +59,7 @@ namespace :sample_data do
   task :subnets do
     puts 'loading subnets'
     sample_data['subnets'].each do |s|
-    	next unless Subnet.where(vpc_id: s['subnet_id']).empty?
+    	next unless Subnet.where(subnet_id: s['subnet_id']).empty?
       sn = Subnet.new(
         subnet_id: s['subnet_id'],
         cidr: s['cidr'],
@@ -76,11 +77,41 @@ namespace :sample_data do
     j = NeoInfra::Aws.new
   end
 
+  task :ssh_keys do
+    puts 'loading ssh_keys'
+    sample_data['ssh_keys'].each do |k|
+    	next unless SshKey.where(name: k['name']).empty?
+      s = SshKey.new(
+        name: k['name'],
+        account: k['account'],
+      )
+      s.save
+      SshKeyAccount.create(from_node: s, to_node: AwsAccount.where(name: k['account']).first)
+    end
+
+  end
+
   task :nodes do
     puts 'loading nodes'
-    #j = NeoInfra::Nodes.new
+    sample_data['nodes'].each do |n|
+    	next unless Node.where(node_id: n['node_id']).empty?
+      node = Node.new(
+        node_id: n['node_id'],
+        name:  n['name'],
+        ip:  n['ip'],
+        public_ip: n['public_ip'],
+        size: n['size'],
+        state: 'running',
+        ami: n['ami'],
+      )
+      node.save
+      NodeAccount.create(from_node: node, to_node: AwsAccount.where(name: n['account']).first)
+      NodeSubnet.create(from_node: node, to_node: Subnet.where(subnet_id: n['subnet_id']).first)
+      NodeAz.create(from_node: node, to_node: Az.where(az: n['az']).first)
+      NodeSshKey.create(from_node: node, to_node: SshKey.where(name: n['ssh_key']).first)
+    end
   end
 
   desc 'Load Sample Data'
-  task all: %i[accounts regions vpcs subnets buckets nodes]
+  task all: %i[accounts regions vpcs subnets ssh_keys buckets nodes]
 end

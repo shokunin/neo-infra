@@ -1,7 +1,7 @@
 ---
 accounts:
-  - :name: account1
-  - :name: account2
+  - :name: production
+  - :name: testing
 
 regions:
   - us-east-1:
@@ -14,6 +14,14 @@ regions:
     - us-west-1a
     - us-west-1c
 
+ssh_keys:
+  - name: prod1
+    account: production
+  - name: prod2
+    account: production
+  - name: test-key
+    account: testing
+
 vpcs:
   - vpc_id: vpc-21121
     name: prod-vpc-1
@@ -21,14 +29,14 @@ vpcs:
     default: false
     cidr: 192.168.0.0/24
     region: us-east-1
-    account: account1
+    account: production
   - vpc_id: vpc-21122
     name: test-vpc-1
     state: available
     default: false
     cidr: 192.168.5.0/24
     region: us-west-1
-    account: account2
+    account: testing
 
 subnets:
   - subnet_id: subnet-444444
@@ -66,3 +74,35 @@ subnets:
     state: avaliable
     az: us-east-1d
     vpc_id: vpc-21121
+
+nodes:
+  - node_id: i-1111111111
+    name: web1
+    ip: 192.168.5.2
+    public_ip: 8.8.8.8
+    size: m1.medium
+    ami: ami-12345678
+    subnet_id: subnet-444444
+    az: us-west-1a
+    ssh_key: test-key
+    account: testing
+  - node_id: i-1111111112
+    name: web2
+    ip: 192.168.5.3
+    public_ip: 8.8.8.4
+    size: m1.medium
+    ami: ami-12345678
+    subnet_id: subnet-444444
+    az: us-west-1a
+    ssh_key: test-key
+    account: testing
+  - node_id: i-1111111113
+    name: app1
+    ip: 192.168.5.201
+    public_ip: ""
+    size: m1.medium
+    ami: ami-12345678
+    subnet_id: subnet-444445
+    az: us-west-1a
+    ssh_key: test-key
+    account: testing
