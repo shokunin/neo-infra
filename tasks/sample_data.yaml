@@ -2,3 +2,13 @@
 accounts:
   - :name: account1
   - :name: account2
+regions:
+  - us-east-1:
+    - us-east-1a
+    - us-east-1b
+    - us-east-1c
+    - us-east-1d
+    - us-east-1e
+  - us-west-1:
+    - us-west-1a
+    - us-west-1c

@@ -26,14 +26,14 @@ namespace :load_data do
   task :buckets do
     puts 'loading buckets'
     j = NeoInfra::Aws.new
-    j.buckets
+    j.load_buckets
   end
 
   desc 'Load Nodes'
   task :nodes do
     puts 'loading nodes'
     j = NeoInfra::Nodes.new
-    j.nodes
+    j.load_nodes
   end
 
   desc 'Load Everything'
