@@ -40,7 +40,35 @@ namespace :sample_data do
 
   task :vpcs do
     puts 'loading vpcs'
-    j = NeoInfra::Vpcs.new
+    sample_data['vpcs'].each do |v|
+    	next unless Vpc.where(vpc_id: v['vpc_id']).empty?
+      vp = Vpc.new(
+        vpc_id: v['vpc_id'],
+        name: v['name'],
+        cidr: v['cidr'],
+        state: v['state'],
+        default: v['default'].to_s
+      )
+      vp.save
+      AccountVpc.create(from_node: vp, to_node: AwsAccount.where(name: v['account']).first)
+      VpcRegion.create(from_node: vp, to_node: Region.where(region: v['region']).first)
+    end
+  end
+
+  task :subnets do
+    puts 'loading subnets'
+    sample_data['subnets'].each do |s|
+    	next unless Subnet.where(vpc_id: s['subnet_id']).empty?
+      sn = Subnet.new(
+        subnet_id: s['subnet_id'],
+        cidr: s['cidr'],
+        name: s['name'],
+        ip_count: s['ip_count'],
+        state: s['state']
+      )
+      VpcSubnet.create(from_node: sn, to_node: Vpc.where(vpc_id: s['vpc_id']).first)
+      SubnetAz.create(from_node: sn, to_node: Az.where(az: s['az']).first)
+    end
   end
 
   task :buckets do
@@ -54,5 +82,5 @@ namespace :sample_data do
   end
 
   desc 'Load Sample Data'
-  task all: %i[accounts regions vpcs buckets nodes]
+  task all: %i[accounts regions vpcs subnets buckets nodes]
 end

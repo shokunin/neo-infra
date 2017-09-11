@@ -2,6 +2,7 @@
 accounts:
   - :name: account1
   - :name: account2
+
 regions:
   - us-east-1:
     - us-east-1a
@@ -12,3 +13,56 @@ regions:
   - us-west-1:
     - us-west-1a
     - us-west-1c
+
+vpcs:
+  - vpc_id: vpc-21121
+    name: prod-vpc-1
+    state: available
+    default: false
+    cidr: 192.168.0.0/24
+    region: us-east-1
+    account: account1
+  - vpc_id: vpc-21122
+    name: test-vpc-1
+    state: available
+    default: false
+    cidr: 192.168.5.0/24
+    region: us-west-1
+    account: account2
+
+subnets:
+  - subnet_id: subnet-444444
+    cidr: 192.168.5.0/25
+    name: test-subnet-public
+    ip_count: 128
+    state: avaliable
+    az: us-west-1a
+    vpc_id: vpc-21122
+  - subnet_id: subnet-444445
+    cidr: 192.168.5.128/25
+    name: test-subnet-private
+    ip_count: 128
+    state: avaliable
+    az: us-west-1c
+    vpc_id: vpc-21122
+  - subnet_id: subnet-555555
+    cidr: 192.168.0.0/26
+    name: test-subnet-public
+    ip_count: 64
+    state: avaliable
+    az: us-east-1a
+    vpc_id: vpc-21121
+  - subnet_id: subnet-555556
+    cidr: 192.168.0.64/26
+    name: test-subnet-private
+    ip_count: 64
+    state: avaliable
+    az: us-east-1b
+    vpc_id: vpc-21121
+  - subnet_id: subnet-555557
+    cidr: 192.168.0.128/25
+    name: test-subnet-private
+    ip_count: 128
+    state: avaliable
+    az: us-east-1d
+    vpc_id: vpc-21121
