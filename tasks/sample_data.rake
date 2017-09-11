@@ -74,7 +74,16 @@ namespace :sample_data do
 
   task :buckets do
     puts 'loading buckets'
-    j = NeoInfra::Aws.new
+    sample_data['buckets'].each do |b|
+    	next unless Bucket.where(name: b['name']).empty?
+      s = Bucket.new(
+        name: b['name'],
+        size: b['size'],
+      )
+      s.save
+      BucketRegion.create(from_node: s, to_node: Region.where(region: b['region']).first)
+      BucketAccount.create(from_node: s, to_node: AwsAccount.where(name: b['account']).first)
+    end
   end
 
   task :ssh_keys do

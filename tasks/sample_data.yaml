@@ -22,6 +22,16 @@ ssh_keys:
   - name: test-key
     account: testing
 
+buckets:
+  - name: testingbucket
+    size: 10000000
+    account: testing
+    region: us-west-1
+  - name: productionbucket
+    size: 90999000000
+    account: production
+    region: us-east-1
+
 vpcs:
   - vpc_id: vpc-21121
     name: prod-vpc-1
