@@ -31,6 +31,10 @@ buckets:
     size: 90999000000
     account: production
     region: us-east-1
+  - name: productionstate
+    size: 12089
+    account: production
+    region: us-east-1
 
 vpcs:
   - vpc_id: vpc-21121
