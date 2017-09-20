@@ -1,3 +1,5 @@
 Gemfile.lock
 config.yaml
 data/*
+vendor/*
+.bundle
