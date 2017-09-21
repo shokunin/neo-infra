@@ -18,8 +18,6 @@ See the tag_policy section of the config.yaml.example file for ideas
 ```
 docker run --rm \
     --publish=7474:7474 --publish=7687:7687 \
-    --volume=$HOME/tmp/neo4j/data:/data \
-    --volume=$HOME/tmp/neo4j/logs:/logs \
     -e NEO4J_AUTH='none' \
     neo4j:3.1.4
 ```
