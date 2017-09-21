@@ -1,10 +1,11 @@
 # frozen_string_literal: true
 
+require 'neo4j'
+require 'neoinfra'
 require 'nodes'
 require 'accounts'
-require 'fog'
-require 'neo4j'
-require 'neoinfra/aws'
+require 'fog-aws'
+
 
 # NeoInfra Account information
 module NeoInfra

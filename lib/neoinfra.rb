@@ -15,4 +15,5 @@ module NeoInfra
   require 'neoinfra/accounts'
   require 'neoinfra/aws'
   require 'neoinfra/vpcs'
+  require 'neoinfra/nodes'
 end
