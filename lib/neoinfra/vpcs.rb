@@ -75,7 +75,13 @@ module NeoInfra
             )
             sn.save
             VpcSubnet.create(from_node: sn, to_node: Vpc.where(vpc_id: subnet.vpc_id).first)
-            SubnetAz.create(from_node: sn, to_node: Az.where(az: subnet.availability_zone).first)
+            begin
+              SubnetAz.create(from_node: sn, to_node: Az.where(az: subnet.availability_zone).first)
+            rescue
+              #  Handle the case of hanging subnets
+              puts "Account #{account[:name]} couldn't load the following subnet:"
+              p subnet
+            end
           end
         end
       end
