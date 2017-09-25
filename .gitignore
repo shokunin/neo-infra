@@ -1,5 +1,6 @@
 Gemfile.lock
 config.yaml
+config.yaml.private.*
 data/*
 vendor/*
 .bundle
