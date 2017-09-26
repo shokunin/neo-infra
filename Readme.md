@@ -28,7 +28,7 @@ docker run --rm \
 cp config.yaml.example config.yaml
 ```
 
-3) Run bunder
+3) Run bundler
 
 ```
 bundle install
