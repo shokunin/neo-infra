@@ -6,6 +6,7 @@ require 'mime-types'
 require 'fog-aws'
 require 's3'
 require 'neo4j'
+require 'rds'
 require 'neoinfra/config'
 require 'neoinfra/cloudwatch'
 
@@ -86,6 +87,35 @@ module NeoInfra
           b.save
           BucketRegion.create(from_node: b, to_node: Region.where(region: bucket.location).first)
           BucketAccount.create(from_node: b, to_node: AwsAccount.where(name: account[:name]).first)
+        end
+      end
+    end
+
+    def load_rds
+      @cfg = NeoInfra::Config.new
+      neo4j_url = "http://#{@cfg.neo4j[:host]}:#{@cfg.neo4j[:port]}"
+      Neo4j::Session.open(:server_db, neo4j_url)
+      @cfg.accounts.each do |account|
+        base_conf = {
+          aws_access_key_id: account[:key],
+          aws_secret_access_key: account[:secret]
+        }
+        s = Fog::AWS::RDS.new(base_conf)
+        s.servers.each do |rds|
+          next unless Rds.where(name: rds.id).empty?
+          r = Rds.new(
+            name: rds.id,
+            size: rds.flavor_id,
+            engine: rds.engine,
+            engine_version: rds.engine_version,
+            multi_az: rds.multi_az.to_s,
+            endpoint: rds.endpoint['Address'],
+            port: rds.endpoint['Port'],
+            allocated_storage: rds.allocated_storage,
+          )
+          r.save
+          RdsAz.create(from_node: r, to_node: Az.where(az: rds.availability_zone).first)
+          RdsAccount.create(from_node: r, to_node: AwsAccount.where(name: account[:name]).first)
         end
       end
     end

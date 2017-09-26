@@ -36,6 +36,13 @@ namespace :load_data do
     j.load_nodes
   end
 
+  desc 'Load RDS'
+  task :rds do
+    puts 'loading rds'
+    j = NeoInfra::Aws.new
+    j.load_rds
+  end
+
   desc 'Load Everything'
-  task all: %i[accounts regions vpcs buckets nodes]
+  task all: %i[accounts regions vpcs buckets nodes rds]
 end
