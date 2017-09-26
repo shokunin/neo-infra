@@ -54,3 +54,8 @@ List out all subnets by instance count
 ```
 MATCH (i: Node)-[r:subnet]-(s:Subnet)-[q:subnet]-(v:Vpc)-[o:owned]-(a:AwsAccount) WITH s, v, a, count(i) as nc RETURN s.cidr, v.name, a.name, nc ORDER by nc DESC
 ```
+
+Find all non-default VPCs ordered by instance count
+```
+MATCH (n:Vpc) OPTIONAL MATCH  (n)<-[:subnet]-(:Subnet)<-[:subnet]-(x:Node) WITH count(x) as node_count, n WHERE n.default="false" RETURN n.name, n.default, node_count ORDER by node_count DESC
+```
