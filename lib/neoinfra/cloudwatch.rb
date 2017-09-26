@@ -14,6 +14,7 @@ module NeoInfra
         region: region
       }
       cwstats = Fog::AWS::CloudWatch.new(conf)
+      begin
       cwstats.get_metric_statistics('Statistics' => ['Maximum'],
                                     'StartTime'  => DateTime.now - 7,
                                     'EndTime'    => DateTime.now,
@@ -24,6 +25,10 @@ module NeoInfra
                                       { 'Name' => 'BucketName', 'Value' => bucket },
                                       { 'Name' => 'StorageType', 'Value' => 'StandardStorage' }
                                     ]).data[:body]['GetMetricStatisticsResult']['Datapoints'].last['Maximum']
+      rescue
+        puts "Unable to get stats for #{bucket} returning -1"
+        return -1
+      end
     end
   end
 end
