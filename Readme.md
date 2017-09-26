@@ -37,7 +37,7 @@ bundle install
 4) Run the data loader
 
 ```
-rake load_all
+rake load_data:all
 ```
 
 5) Point your web browswer at http://localhost:7474
