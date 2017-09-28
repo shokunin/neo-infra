@@ -14,8 +14,14 @@ require 'neoinfra/cloudwatch'
 module NeoInfra
   # Provide informations about the accounts available
   class Aws
-    def regions
+
+    def initialize
       @cfg = NeoInfra::Config.new
+      neo4j_url = "http://#{@cfg.neo4j[:host]}:#{@cfg.neo4j[:port]}"
+      Neo4j::Session.open(:server_db, neo4j_url)
+    end
+
+    def regions
       account = @cfg.accounts.first
       base_conf = {
         provider: 'AWS',
@@ -35,7 +41,6 @@ module NeoInfra
     end
 
     def azs(region)
-      @cfg = NeoInfra::Config.new
       account = @cfg.accounts.first
       base_conf = {
         provider: 'AWS',
@@ -48,9 +53,6 @@ module NeoInfra
     end
 
     def load_regions
-      @cfg = NeoInfra::Config.new
-      neo4j_url = "http://#{@cfg.neo4j[:host]}:#{@cfg.neo4j[:port]}"
-      Neo4j::Session.open(:server_db, neo4j_url)
       regions.each do |region|
         next unless Region.where(region: region).empty?
         r = Region.new(
@@ -67,10 +69,7 @@ module NeoInfra
     end
 
     def load_buckets
-      @cfg = NeoInfra::Config.new
       cw = NeoInfra::Cloudwatch.new
-      neo4j_url = "http://#{@cfg.neo4j[:host]}:#{@cfg.neo4j[:port]}"
-      Neo4j::Session.open(:server_db, neo4j_url)
       @cfg.accounts.each do |account|
         base_conf = {
           provider: 'AWS',
@@ -92,9 +91,6 @@ module NeoInfra
     end
 
     def load_rds
-      @cfg = NeoInfra::Config.new
-      neo4j_url = "http://#{@cfg.neo4j[:host]}:#{@cfg.neo4j[:port]}"
-      Neo4j::Session.open(:server_db, neo4j_url)
       @cfg.accounts.each do |account|
         base_conf = {
           aws_access_key_id: account[:key],
