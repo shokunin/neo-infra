@@ -43,6 +43,13 @@ namespace :load_data do
     j.load_rds
   end
 
+  desc 'Load Security Groups'
+  task :security_groups do
+    puts 'loading Security Groups'
+    j = NeoInfra::Aws.new
+    j.load_security_groups
+  end
+
   desc 'Load Everything'
-  task all: %i[accounts regions vpcs buckets nodes rds]
+  task all: %i[accounts regions vpcs buckets security_groups nodes rds]
 end

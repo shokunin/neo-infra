@@ -90,6 +90,31 @@ module NeoInfra
       end
     end
 
+    def load_security_groups
+      @cfg.accounts.each do |account|
+        base_conf = {
+          provider: 'AWS',
+          aws_access_key_id: account[:key],
+          aws_secret_access_key: account[:secret]
+        }
+        self.regions.each do |region|
+          region_conf = { region: region }
+          conn = Fog::Compute.new(region_conf.merge(base_conf))
+          conn.security_groups.all.each do |grp|
+            next unless SecurityGroup.where(sg_id: grp.group_id).empty?
+            g = SecurityGroup.new(
+              sg_id: grp.group_id,
+              name: grp.name,
+              description: grp.description,
+            )
+            g.save
+            SecurityGroupOwner.create(from_node: g, to_node:  AwsAccount.where(account_id: grp.owner_id).first)
+            SecurityGroupVpc.create(from_node: g, to_node:  Vpc.where(vpc_id: grp.vpc_id).first)
+          end
+        end
+      end
+    end
+
     def load_rds
       @cfg.accounts.each do |account|
         base_conf = {

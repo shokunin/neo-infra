@@ -58,6 +58,19 @@ module NeoInfra
             NodeSubnet.create(from_node: n, to_node: Subnet.where(subnet_id: ec2.subnet_id).first)
             NodeAz.create(from_node: n, to_node: Az.where(az: ec2.availability_zone).first)
             NodeSshKey.create(from_node: n, to_node: SshKey.where(name: ec2.key_name).first)
+            ec2.network_interfaces.select{|x| x.length > 0 }.each do |i|
+              if i.has_key? 'groupIds'
+                i['groupIds'].each do |g|
+                  begin
+                    NodeSecurityGroup.create(from_node: n, to_node: SecurityGroup.where(sg_id: g).first)
+                  rescue
+                    puts "Security Groups: #{account[:name]}/#{region} couldn't get the following to work:"
+                    p ec2
+                    p g
+                  end
+                end
+              end
+            end
           end
         end
       end
