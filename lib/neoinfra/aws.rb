@@ -68,6 +68,17 @@ module NeoInfra
       end
     end
 
+    def list_buckets
+      buckets = []
+      Bucket.all.order('n.size DESC').each do |b|
+        buckets <<  {'name' => b.name,
+                     'size' => b.size,
+                     'region' => b.region.region,
+                     'owner' => b.owner.name}
+      end
+      return buckets
+    end
+
     def load_buckets
       cw = NeoInfra::Cloudwatch.new
       @cfg.accounts.each do |account|
