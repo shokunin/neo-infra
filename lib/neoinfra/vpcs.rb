@@ -10,6 +10,13 @@ require 'neo4j'
 module NeoInfra
   # Provide informations about the accounts available
   class Vpcs
+
+    def initialize
+      @cfg = NeoInfra::Config.new
+      neo4j_url = "http://#{@cfg.neo4j[:host]}:#{@cfg.neo4j[:port]}"
+      Neo4j::Session.open(:server_db, neo4j_url)
+    end
+
     def non_default_vpc_count
       p Vpc.all
       21
@@ -27,11 +34,6 @@ module NeoInfra
 
     def load
       aws = NeoInfra::Aws.new
-      @cfg = NeoInfra::Config.new
-
-      neo4j_url = "http://#{@cfg.neo4j[:host]}:#{@cfg.neo4j[:port]}"
-      Neo4j::Session.open(:server_db, neo4j_url)
-
       @cfg.accounts.each do |account|
         base_conf = {
           provider: 'AWS',
