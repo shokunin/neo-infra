@@ -16,8 +16,8 @@ class Views < Sinatra::Base
   set :views, File.join(File.dirname(__FILE__), '..', '/views')
 
   get '/vpcs' do
-    status 200
-    puts Vpc
+    w = NeoInfra::Vpcs.new
+    w.list_vpcs.to_json
   end
 
   get '/buckets' do

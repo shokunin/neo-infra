@@ -19,6 +19,10 @@ module NeoInfra
       22
     end
 
+    def list_vpcs
+      Vpc.all.collect{|x| {'vpc_id' => x.vpc_id, 'name'=>x.name, 'region' => x.region.region, 'owner' => x.owned.name, 'cidr' => x.cidr, 'default' => x.default} }.select{ |y| y['default'] == "false"}      
+    end
+
     def load
       aws = NeoInfra::Aws.new
       @cfg = NeoInfra::Config.new
