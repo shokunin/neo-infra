@@ -1,0 +1,28 @@
+<h2 class="title"><br><br><center>VPCs</center></h2>
+
+<div class="container">
+  <table class="table table-hover">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Account</th>
+        <th>Region</th>
+        <th>CIDR</th>
+        <th>Default</th>
+        <th>VPC-ID</th>
+      </tr>
+    </thead>
+    <tbody>
+<% vpcs.each do |vpc| %>
+<tr>
+<td><%= vpc['name'] %></td>
+<td><%= vpc['owner'] %></td>
+<td><%= vpc['region'] %></td>
+<td><%= vpc['cidr'] %></td>
+<td><%= vpc['default'] %></td>
+<td><%= vpc['vpc_id'] %></td>
+</tr>
+<% end %>
+    </tbody>
+  </table>
+</div>

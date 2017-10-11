@@ -17,7 +17,13 @@ class Views < Sinatra::Base
 
   get '/vpcs' do
     w = NeoInfra::Vpcs.new
-    w.list_vpcs.to_json
+    respond_to do |wants|
+      wants.html {
+        erb :view_vpcs,
+        :layout => :base_layout,
+        :locals => {:vpcs => w.list_vpcs}
+      }
+    end
   end
 
   get '/buckets' do
