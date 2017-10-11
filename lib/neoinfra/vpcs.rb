@@ -18,12 +18,11 @@ module NeoInfra
     end
 
     def non_default_vpc_count
-      p Vpc.all
-      21
+      Vpc.all.collect{|x| x.default}.select{|y| y == "false"}.length
     end
 
     def default_vpc_count
-      22
+      Vpc.all.collect{|x| x.default}.select{|y| y == "true"}.length
     end
 
     def list_vpcs
