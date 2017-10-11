@@ -20,7 +20,9 @@ module NeoInfra
     end
 
     def list_vpcs
-      Vpc.all.collect{|x| {'vpc_id' => x.vpc_id, 'name'=>x.name, 'region' => x.region.region, 'owner' => x.owned.name, 'cidr' => x.cidr, 'default' => x.default} }.select{ |y| y['default'] == "false"}      
+      node_counts = Hash.new(0)
+      Node.all.each{|x| node_counts[x.subnet.subnet.name]+=1}
+      Vpc.all.collect{|x| {'nodes' => node_counts[x.name], 'vpc_id' => x.vpc_id, 'name'=>x.name, 'region' => x.region.region, 'owner' => x.owned.name, 'cidr' => x.cidr, 'default' => x.default} }.select{ |y| y['default'] == "false"}.sort_by{|h| h['nodes']}.reverse
     end
 
     def load

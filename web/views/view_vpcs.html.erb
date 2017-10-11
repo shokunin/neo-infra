@@ -5,6 +5,7 @@
     <thead>
       <tr>
         <th>Name</th>
+        <th>Nodes</th>
         <th>Account</th>
         <th>Region</th>
         <th>CIDR</th>
@@ -16,6 +17,7 @@
 <% vpcs.each do |vpc| %>
 <tr>
 <td><%= vpc['name'] %></td>
+<td><%= vpc['nodes'] %></td>
 <td><%= vpc['owner'] %></td>
 <td><%= vpc['region'] %></td>
 <td><%= vpc['cidr'] %></td>
