@@ -1,37 +1,19 @@
-<h2 class="title"><br><br><center>Node Information</center></h2>
+<h2 class="title"><br><br><center>Node Information</center><br><br></h2>
 <div class="container">
  <table class="table table-hover">
-    <thead>
-      <tr>
-        <th>Name</th>
-        <th>IP</th>
-        <th>Public IP</th>
-        <th>Account</th>
-        <th>Size</th>
-        <th>Subnet</th>
-        <th>AZ</th>
-        <th>VPC</th>
-        <th>SSH Key</th>
-        <th>AMI</th>
-        <th>State</th>
-        <th>Security Group</th>
-      </tr>
-    </thead>
-    <tbody>
-<tr>
-<td><%= node['Name'] %></td>
-<td><%= node['IP'] %></td>
-<td><%= node['Public_IP'] %></td>
-<td><%= node['Account'] %></td>
-<td><%= node['Size'] %></td>
-<td><%= node['Subnet'] %></td>
-<td><%= node['AZ'] %></td>
-<td><%= node['VPC'] %></td>
-<td><%= node['SSH-Key'] %></td>
-<td><%= node['AMI'] %></td>
-<td><%= node['State'] %></td>
-<td><%= node['SecurityGroup'] %></td>
-</tr>
+<tbody>
+<tr> <td>Name</td> <td><%= node['Name'] %></td></tr>
+<tr><td>IP</td><td><%= node['IP'] %></td></tr>
+<tr><td>Public IP</td><td><%= node['Public_IP'] %></td></tr>
+<tr><td>Account</td><td><%= node['Account'] %></td></tr>
+<tr><td>Size</td><td><%= node['Size'] %></td></tr>
+<tr><td>Subnet</td><td><%= node['Subnet'] %></td></tr>
+<tr><td>AZ</td><td><%= node['AZ'] %></td></tr>
+<tr><td>VPC</td><td><%= node['VPC'] %></td></tr>
+<tr><td>SSH Key</td><td><%= node['SSH-Key'] %></td></tr>
+<tr><td>AMI</td><td><%= node['AMI'] %></td></tr>
+<tr><td>State</td><td><%= node['State'] %></td></tr>
+<tr><td>Security Group</td><td><%= node['SecurityGroup'] %></td></tr>
     </tbody>
   </table>
 
