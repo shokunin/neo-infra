@@ -8,6 +8,8 @@
         <th>Size</th>
         <th>Region</th>
         <th>Owner</th>
+        <th>Versioning</th>
+        <th>Creation</th>
       </tr>
     </thead>
     <tbody>
@@ -21,6 +23,16 @@
 <% end %>
 <td><%= bucket['region']%></td>
 <td><%= bucket['owner'] %></td>
+<td>
+  <% if bucket['versioning'] == "true" %>
+    <i class="fa fa-check-circle" aria-hidden="true"></i>
+  <% elsif bucket['versioning'] == "false" %>
+    <i class="fa fa-times-circle" aria-hidden="true"></i>
+  <% else %>
+    <i class="fa fa-question-circle" aria-hidden="true"></i>
+  <% end %>
+</td>
+<td><%= bucket['creation'] %></td>
 </tr>
 <% end %>
     </tbody>

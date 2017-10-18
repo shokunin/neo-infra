@@ -71,10 +71,14 @@ module NeoInfra
     def list_buckets
       buckets = []
       Bucket.all.order('n.size DESC').each do |b|
-        buckets <<  {'name' => b.name,
-                     'size' => b.size,
-                     'region' => b.region.region,
-                     'owner' => b.owner.name}
+        buckets <<  {
+          'name'       => b.name,
+          'size'       => b.size,
+          'versioning' => b.versioning,
+          'creation'   => b.creation,
+          'region'     => b.region.region,
+          'owner'      => b.owner.name
+        }
       end
       return buckets
     end
@@ -90,8 +94,17 @@ module NeoInfra
         s = Fog::Storage.new(base_conf)
         s.directories.each do |bucket|
           next unless Bucket.where(name: bucket.key).empty?
+          begin
+            vers = bucket.versioning?.to_s
+            crea =  bucket.creation_date.to_s
+          rescue
+            vers = "unknown"
+            crea = "unknown"
+          end
           b = Bucket.new(
             name: bucket.key,
+            versioning: vers,
+            creation: crea,
             size: cw.get_bucket_size(account[:key], account[:secret], bucket.location, bucket.key)
           )
           b.save
