@@ -37,7 +37,11 @@ module NeoInfra
     end
 
     def search_nodes_by_ip(ip)
-      display_node(Node.where(ip: ip).first.node_id)
+      if Node.where(ip: ip).length > 0
+	display_node(Node.where(ip: ip).first.node_id)
+      else
+	display_node(Node.where(public_ip: ip).first.node_id)
+      end
     end
 
     def search_nodes_by_node_id(node_id)

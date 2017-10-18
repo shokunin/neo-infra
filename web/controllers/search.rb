@@ -16,7 +16,6 @@ class Search < Sinatra::Base
   set :views, File.join(File.dirname(__FILE__), '..', '/views')
 
   post '/all' do
-    puts params.to_s
     if params['search'] =~ /\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}/
       n = NeoInfra::Nodes.new
       respond_to do |wants|
