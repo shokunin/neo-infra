@@ -1,0 +1,38 @@
+<h2 class="title"><br><br><center>Node Information</center></h2>
+<div class="container">
+ <table class="table table-hover">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>IP</th>
+        <th>Public IP</th>
+        <th>Account</th>
+        <th>Size</th>
+        <th>Subnet</th>
+        <th>AZ</th>
+        <th>VPC</th>
+        <th>SSH Key</th>
+        <th>AMI</th>
+        <th>State</th>
+        <th>Security Group</th>
+      </tr>
+    </thead>
+    <tbody>
+<tr>
+<td><%= node['Name'] %></td>
+<td><%= node['IP'] %></td>
+<td><%= node['Public_IP'] %></td>
+<td><%= node['Account'] %></td>
+<td><%= node['Size'] %></td>
+<td><%= node['Subnet'] %></td>
+<td><%= node['AZ'] %></td>
+<td><%= node['VPC'] %></td>
+<td><%= node['SSH-Key'] %></td>
+<td><%= node['AMI'] %></td>
+<td><%= node['State'] %></td>
+<td><%= node['SecurityGroup'] %></td>
+</tr>
+    </tbody>
+  </table>
+
+</div>
