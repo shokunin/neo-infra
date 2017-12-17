@@ -5,10 +5,17 @@ require 'regions'
 require 'mime-types'
 require 'fog-aws'
 require 's3'
+require 'ipaddr'
 require 'neo4j'
 require 'rds'
 require 'neoinfra/config'
 require 'neoinfra/cloudwatch'
+
+RFC_1918 = [
+  IPAddr.new('10.0.0.0/8'),
+  IPAddr.new('172.16.0.0/12'),
+  IPAddr.new('192.168.0.0/16'),
+].freeze
 
 # NeoInfra Account information
 module NeoInfra
@@ -125,6 +132,41 @@ module NeoInfra
           region_conf = { region: region }
           conn = Fog::Compute.new(region_conf.merge(base_conf))
           conn.security_groups.all.each do |grp|
+          ####
+            grp.ip_permissions.each do |iprule|
+              if iprule['ipProtocol'] != "-1"
+                iprule['ipRanges'].each do |r|
+                  if iprule['toPort'] == -1
+                    to_port = 65535
+                  else
+                    to_port = iprule['toPort']
+                  end
+                  if iprule['fromPort'] == -1
+                    from_port = 0
+                  else
+                    from_port = iprule['fromPort']
+                  end
+                  if IpRules.where(
+                    cidr_block: r['cidrIp'],
+                    direction: 'ingress',
+                    proto: iprule['ipProtocol'],
+                    to_port: to_port,
+                    from_port: from_port,
+                  ).empty?
+                    rl = IpRules.new(
+                      cidr_block: r['cidrIp'],
+                      direction: 'ingress',
+                      proto: iprule['ipProtocol'],
+                      to_port: to_port,
+                      from_port: from_port,
+                      private: RFC_1918.any? { |rfc| rfc.include?(IPAddr.new(r['cidrIp']))}
+                    )
+                    rl.save
+                  end
+                end
+              end
+            end
+
             next unless SecurityGroup.where(sg_id: grp.group_id).empty?
             g = SecurityGroup.new(
               sg_id: grp.group_id,

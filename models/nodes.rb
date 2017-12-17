@@ -26,7 +26,7 @@ class SecurityGroup
   property :description
   has_one  :out, :sg_owner, rel_class: :SecurityGroupOwner
   has_one  :out, :sg_vpc, rel_class: :SecurityGroupVpc
-#  has_many :out, :ip_rules, rel_class: :SecurityGroupsIpRules
+  has_many :out, :ip_rules, rel_class: :SecurityGroupsIpRules
 #  has_many :out, :sg_rules, rel_class: :SecurityGroupsSgRules
 end
 
@@ -56,7 +56,9 @@ class IpRules
   property :cidr_block
   property :direction
   property :proto
-  property :start_port
+  property :from_port
+  property :to_port
+  property :private
 end
 
 # SSH key class
