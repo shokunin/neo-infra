@@ -4,3 +4,4 @@ config.yaml.private.*
 data/*
 vendor/*
 .bundle
+tmp_notes

@@ -61,6 +61,13 @@ class IpRules
   property :private
 end
 
+class SecurityGroupsIpRules
+  include Neo4j::ActiveRel
+  from_class :SecurityGroup
+  to_class :IpRules
+  type :ip_rules
+end
+
 # SSH key class
 class SshKey
   include Neo4j::ActiveNode
