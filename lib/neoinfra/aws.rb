@@ -132,50 +132,50 @@ module NeoInfra
           region_conf = { region: region }
           conn = Fog::Compute.new(region_conf.merge(base_conf))
           conn.security_groups.all.each do |grp|
-          ####
+            if SecurityGroup.where(sg_id: grp.group_id).empty?
+              g = SecurityGroup.new(
+                sg_id: grp.group_id,
+                name: grp.name,
+                description: grp.description,
+              )
+              g.save
+              SecurityGroupOwner.create(from_node: g, to_node:  AwsAccount.where(account_id: grp.owner_id).first)
+              SecurityGroupVpc.create(from_node: g, to_node:  Vpc.where(vpc_id: grp.vpc_id).first)
+            end
             grp.ip_permissions.each do |iprule|
-              if iprule['ipProtocol'] != "-1"
-                iprule['ipRanges'].each do |r|
-                  if iprule['toPort'] == -1
-                    to_port = 65535
-                  else
-                    to_port = iprule['toPort']
-                  end
-                  if iprule['fromPort'] == -1
-                    from_port = 0
-                  else
-                    from_port = iprule['fromPort']
-                  end
-                  if IpRules.where(
-                    cidr_block: r['cidrIp'],
-                    direction: 'ingress',
-                    proto: iprule['ipProtocol'],
-                    to_port: to_port,
-                    from_port: from_port,
-                  ).empty?
-                    rl = IpRules.new(
+                  if iprule['ipProtocol'] != "-1"
+                  iprule['ipRanges'].each do |r|
+                    if iprule['toPort'] == -1
+                      to_port = 65535
+                    else
+                      to_port = iprule['toPort']
+                    end
+                    if iprule['fromPort'] == -1
+                      from_port = 0
+                    else
+                      from_port = iprule['fromPort']
+                    end
+                    if IpRules.where(
                       cidr_block: r['cidrIp'],
                       direction: 'ingress',
                       proto: iprule['ipProtocol'],
                       to_port: to_port,
                       from_port: from_port,
-                      private: RFC_1918.any? { |rfc| rfc.include?(IPAddr.new(r['cidrIp']))}
-                    )
-                    rl.save
+                    ).empty?
+                      rl = IpRules.new(
+                        cidr_block: r['cidrIp'],
+                        direction: 'ingress',
+                        proto: iprule['ipProtocol'],
+                        to_port: to_port,
+                        from_port: from_port,
+                        private: RFC_1918.any? { |rfc| rfc.include?(IPAddr.new(r['cidrIp']))}
+                      )
+                      rl.save
+                    end
                   end
                 end
               end
-            end
-
-            next unless SecurityGroup.where(sg_id: grp.group_id).empty?
-            g = SecurityGroup.new(
-              sg_id: grp.group_id,
-              name: grp.name,
-              description: grp.description,
-            )
-            g.save
-            SecurityGroupOwner.create(from_node: g, to_node:  AwsAccount.where(account_id: grp.owner_id).first)
-            SecurityGroupVpc.create(from_node: g, to_node:  Vpc.where(vpc_id: grp.vpc_id).first)
+              #
           end
         end
       end
