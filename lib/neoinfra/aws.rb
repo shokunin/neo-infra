@@ -172,6 +172,18 @@ module NeoInfra
                       )
                       rl.save
                     end
+                    # TODO: remove duplicate Relationships
+                    SecurityGroupsIpRules.create(
+                      from_node: SecurityGroup.where(sg_id: grp.group_id).first,
+                      to_node: IpRules.where(
+                        cidr_block: r['cidrIp'],
+                        direction: 'ingress',
+                        proto: iprule['ipProtocol'],
+                        to_port: to_port,
+                        from_port: from_port,
+                        private: RFC_1918.any? { |rfc| rfc.include?(IPAddr.new(r['cidrIp']))}
+                      ).first
+                    )
                   end
                 end
               end
