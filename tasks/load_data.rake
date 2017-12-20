@@ -50,6 +50,13 @@ namespace :load_data do
     j.load_security_groups
   end
 
+  desc 'Load Dynamo'
+  task :dynamo do
+    puts 'loading Dynamo'
+    j = NeoInfra::Aws.new
+    j.load_dynamo
+  end
+
   desc 'Load Everything'
   task all: %i[accounts regions vpcs buckets security_groups nodes rds]
 end

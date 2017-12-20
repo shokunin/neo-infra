@@ -198,6 +198,46 @@ module NeoInfra
       end
     end
 
+    def load_dynamo
+      @cfg.accounts.each do |account|
+        base_conf = {
+          aws_access_key_id: account[:key],
+          aws_secret_access_key: account[:secret]
+        }
+        self.regions.each do |region|
+          region_conf = { region: region }
+          begin
+            dyns = Fog::AWS::DynamoDB.new(region_conf.merge(base_conf))
+            dyns.list_tables.data[:body]["TableNames"].each do |table|
+              tb = dyns.describe_table(table).data[:body]['Table']
+              next unless Dynamo.where(name: table['TableId']).empty?
+              d = Dynamo.new(
+                  tableid: 	tb['TableId'],
+                  name: 	tb['TableName'],
+                  creation: 	tb['CreationDateTime'],
+                  arn: 		tb['TableArn'],
+                  itemcount: 	tb['ItemCount'],
+                  sizebytes: 	tb['TableSizeBytes'],
+                  status: 	tb['TableStatus'],
+                  readcap: 	tb['ProvisionedThroughput']['ReadCapacityUnits'],
+                  writecap: 	tb['ProvisionedThroughput']['WriteCapacityUnits'],
+                  capdecreases: tb['ProvisionedThroughput']['NumberOfDecreasesToday'],
+              )
+              d.save
+              DynamoAccount.create(from_node: d, to_node: AwsAccount.where(name: account[:name]).first)
+              DynamoRegion.create(from_node: d, to_node: Region.where(region: region).first)
+            end
+          rescue Exception => e
+            puts "Could not list Dynamos for region: #{region}: #{e.message}"
+            next
+          end
+        end
+        #dyns.list_tables.each do |table|
+        #  p table
+        #end
+      end
+    end
+
     def load_rds
       @cfg.accounts.each do |account|
         base_conf = {
