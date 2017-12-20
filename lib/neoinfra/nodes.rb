@@ -59,7 +59,12 @@ module NeoInfra
         }
         aws.regions.each do |region|
           region_conf = { region: region }
-          new_conn = Fog::Compute.new(region_conf.merge(base_conf))
+          begin
+            new_conn = Fog::Compute.new(region_conf.merge(base_conf))
+          rescue
+            puts "Error loading nodes in region: #{region}"
+            next
+          end
           new_conn.servers.all.each do |ec2|
             if SshKey.where(name: ec2.key_name).empty?
               s = SshKey.new(

@@ -41,7 +41,12 @@ module NeoInfra
         }
         aws.regions.each do |region|
           region_conf = { region: region }
-          new_conn = Fog::Compute.new(region_conf.merge(base_conf))
+          begin
+            new_conn = Fog::Compute.new(region_conf.merge(base_conf))
+          rescue
+            puts "Error loading VPCs in region: #{region}"
+            next
+          end
           # Get VPCs
           new_conn.vpcs.all.each do |vpc|
             next unless Vpc.where(vpc_id: vpc.id).empty?

@@ -130,7 +130,12 @@ module NeoInfra
         }
         self.regions.each do |region|
           region_conf = { region: region }
-          conn = Fog::Compute.new(region_conf.merge(base_conf))
+          begin
+            conn = Fog::Compute.new(region_conf.merge(base_conf))
+          rescue
+            puts "Error loading security groups for region #{region}"
+            next
+          end
           conn.security_groups.all.each do |grp|
             if SecurityGroup.where(sg_id: grp.group_id).empty?
               g = SecurityGroup.new(
