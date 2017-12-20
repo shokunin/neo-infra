@@ -58,5 +58,5 @@ namespace :load_data do
   end
 
   desc 'Load Everything'
-  task all: %i[accounts regions vpcs buckets security_groups nodes rds]
+  task all: %i[accounts regions vpcs buckets security_groups nodes rds dynamo]
 end

@@ -37,4 +37,15 @@ class Views < Sinatra::Base
     end
   end
 
+  get '/dynamos' do
+    j = NeoInfra::Aws.new
+    respond_to do |wants|
+      wants.html {
+        erb :view_dynamos,
+        :layout => :base_layout,
+        :locals => {:dynamos => j.list_dynamos}
+      }
+    end
+  end
+
 end

@@ -5,6 +5,7 @@ require 'regions'
 require 'mime-types'
 require 'fog-aws'
 require 's3'
+require 'date'
 require 'ipaddr'
 require 'neo4j'
 require 'rds'
@@ -55,8 +56,12 @@ module NeoInfra
         aws_secret_access_key: account[:secret],
         region: region
       }
-      conn = Fog::Compute.new(base_conf)
-      conn.describe_availability_zones.data[:body]['availabilityZoneInfo'].collect { |x| x['zoneName'] }
+      begin
+        conn = Fog::Compute.new(base_conf)
+        conn.describe_availability_zones.data[:body]['availabilityZoneInfo'].collect { |x| x['zoneName'] }
+      rescue Exception => e
+        puts "Zone couldn't load region #{region}: #{e.message}"
+      end
     end
 
     def load_regions
@@ -198,6 +203,23 @@ module NeoInfra
       end
     end
 
+
+    def list_dynamos
+      dynamos = []
+      Dynamo.all.order('n.sizebytes DESC').each do |d|
+        dynamos <<  {
+          'name'       => d.name,
+          'size'       => d.sizebytes,
+          'itemcount'  => d.itemcount,
+          'status'     => d.status,
+          'creation'   => d.creation,
+          'region'     => d.region.region,
+          'owner'      => d.owner.name
+        }
+      end
+      return dynamos
+    end
+
     def load_dynamo
       @cfg.accounts.each do |account|
         base_conf = {
@@ -214,7 +236,7 @@ module NeoInfra
               d = Dynamo.new(
                   tableid: 	tb['TableId'],
                   name: 	tb['TableName'],
-                  creation: 	tb['CreationDateTime'],
+                  creation: Time.at(tb['CreationDateTime']).to_datetime.strftime("%F %H:%M:%S %Z"),
                   arn: 		tb['TableArn'],
                   itemcount: 	tb['ItemCount'],
                   sizebytes: 	tb['TableSizeBytes'],
