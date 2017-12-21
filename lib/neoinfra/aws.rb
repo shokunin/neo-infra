@@ -9,6 +9,7 @@ require 'date'
 require 'ipaddr'
 require 'neo4j'
 require 'rds'
+require 'lambdas'
 require 'neoinfra/config'
 require 'neoinfra/cloudwatch'
 
@@ -203,6 +204,56 @@ module NeoInfra
       end
     end
 
+    def list_lambdas
+      lambdas = []
+      Lambda.all.each do |l|
+        lambdas <<  {
+          'name'           => l.name,
+          'runtime'        => l.runtime,
+          'handler'        => l.handler,
+          'lambda_timeout' => l.lambda_timeout,
+          'memorysize'     => l.memorysize,
+          'last_modified'  => l.last_modified,
+          'region'         => l.region.region,
+          'owner'          => l.owner.name
+        }
+      end
+      return lambdas
+    end
+
+    def load_lambda
+      @cfg.accounts.each do |account|
+        base_conf = {
+          aws_access_key_id: account[:key],
+          aws_secret_access_key: account[:secret]
+        }
+        self.regions.each do |region|
+          region_conf = { region: region }
+          begin
+            lambdas = Fog::AWS::Lambda.new(region_conf.merge(base_conf))
+            lambdas.list_functions.data[:body]['Functions'].each do |f|
+              next unless Lambda.where(name: f['FunctionArn']).empty?
+              l = Lambda.new(
+                  name:             f['FunctionName'],
+                  runtime:          f['Runtime'],
+                  lambda_timeout:   f['Timeout'],
+                  handler:          f['Handler'],
+                  memorysize:       f['MemorySize'],
+                  arn:              f['FunctionArn'],
+                  codesize:         f['CodeSize'],
+                  last_modified:    f['LastModified'],
+              )
+              l.save
+              LambdaAccount.create(from_node: l, to_node: AwsAccount.where(name: account[:name]).first)
+              LambdaRegion.create(from_node: l, to_node: Region.where(region: region).first)
+            end
+          rescue Exception => e
+            puts "Error with #{region}: #{e.message}"
+            next
+          end
+        end
+      end
+    end
 
     def list_dynamos
       dynamos = []

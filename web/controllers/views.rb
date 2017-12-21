@@ -48,4 +48,16 @@ class Views < Sinatra::Base
     end
   end
 
+  get '/lambdas' do
+    j = NeoInfra::Aws.new
+    respond_to do |wants|
+      wants.html {
+        erb :view_lambdas,
+        :layout => :base_layout,
+        :locals => {:lambdas => j.list_lambdas}
+      }
+    end
+  end
+
+
 end
