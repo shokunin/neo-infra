@@ -15,3 +15,11 @@ end
 map '/load' do
   run Dataloader
 end
+
+map '/view' do
+  run Views
+end
+
+map '/search' do
+  run Search
+end

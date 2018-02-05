@@ -6,6 +6,8 @@ require 'neo4j'
 class Bucket
   include Neo4j::ActiveNode
   property :name, constraint: :unique
+  property :versioning
+  property :creation
   property :size
   has_one :out, :region, rel_class: :BucketRegion
   has_one :out, :owner, rel_class: :BucketAccount

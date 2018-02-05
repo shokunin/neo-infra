@@ -1,0 +1,30 @@
+<h2 class="title"><br><br><center>Lambda Functions</center></h2>
+
+<div class="container">
+  <table class="table table-hover">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Owner</th>
+        <th>Region</th>
+        <th>Handler</th>
+        <th>Memory</th>
+        <th>Timeout</th>
+        <th>Modified</th>
+      </tr>
+    </thead>
+    <tbody>
+<% lambdas.each do |lambda| %>
+<tr>
+<td><%= lambda['name'] %></td>
+<td><%= lambda['owner'] %></td>
+<td><%= lambda['region'] %></td>
+<td><%= lambda['handler'] %></td>
+<td><%= lambda['memorysize'] %></td>
+<td><%= lambda['lambda_timeout']%></td>
+<td><%= lambda['last_modified'] %></td>
+</tr>
+<% end %>
+    </tbody>
+  </table>
+</div>

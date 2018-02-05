@@ -11,11 +11,45 @@ require 'fog-aws'
 module NeoInfra
   # Provide informations about the accounts available
   class Nodes
-    def load_nodes
-      aws = NeoInfra::Aws.new
+
+    def initialize
       @cfg = NeoInfra::Config.new
       neo4j_url = "http://#{@cfg.neo4j[:host]}:#{@cfg.neo4j[:port]}"
       Neo4j::Session.open(:server_db, neo4j_url)
+    end
+
+    def display_node(node_id)
+      n = Node.where(node_id: node_id).first
+      return {
+        "Name"          => n.name,
+        "IP"            => n.ip,
+        "State"         => n.state,
+        "AMI"           => n.ami,
+        "Public_IP"     => n.public_ip,
+        "AZ"            => n.az.az,
+        "Account"       => n.account.name,
+        "Size"          => n.size,
+        "Subnet"        => n.subnet.name,
+        "VPC"           => n.subnet.subnet.name,
+        "SSH-Key"       => n.sshkey.name,
+        "SecurityGroup" => n.node_sg.name,
+      }
+    end
+
+    def search_nodes_by_ip(ip)
+      if Node.where(ip: ip).length > 0
+	display_node(Node.where(ip: ip).first.node_id)
+      else
+	display_node(Node.where(public_ip: ip).first.node_id)
+      end
+    end
+
+    def search_nodes_by_node_id(node_id)
+      display_node(Node.where(node_id: node_id).first.node_id)
+    end
+
+    def load_nodes
+      aws = NeoInfra::Aws.new
 
       @cfg.accounts.each do |account|
         base_conf = {
@@ -25,7 +59,12 @@ module NeoInfra
         }
         aws.regions.each do |region|
           region_conf = { region: region }
-          new_conn = Fog::Compute.new(region_conf.merge(base_conf))
+          begin
+            new_conn = Fog::Compute.new(region_conf.merge(base_conf))
+          rescue
+            puts "Error loading nodes in region: #{region}"
+            next
+          end
           new_conn.servers.all.each do |ec2|
             if SshKey.where(name: ec2.key_name).empty?
               s = SshKey.new(

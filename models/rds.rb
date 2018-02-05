@@ -25,10 +25,40 @@ class RdsAz
   type :az
 end
 
-# Map Rds to Region
 class RdsAccount
   include Neo4j::ActiveRel
   from_class :Rds
   to_class :AwsAccount
   type :owner
 end
+
+class Dynamo
+  include Neo4j::ActiveNode
+  property :tableid, constraint: :unique
+  property :name
+  property :creation
+  property :arn
+  property :itemcount
+  property :sizebytes
+  property :status
+  property :readcap
+  property :writecap
+  property :capdecreases
+  has_one :out, :owner, rel_class: :DynamoAccount
+  has_one :out, :region, rel_class: :DynamoRegion
+end
+
+class DynamoAccount
+  include Neo4j::ActiveRel
+  from_class :Dynamo
+  to_class :AwsAccount
+  type :owner
+end
+
+class DynamoRegion
+  include Neo4j::ActiveRel
+  from_class :Dynamo
+  to_class :Region
+  type :region
+end
+

@@ -1,0 +1,32 @@
+<h2 class="title"><br><br><center>Dynamo Tables</center></h2>
+
+<div class="container">
+  <table class="table table-hover">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Owner</th>
+        <th>Region</th>
+        <th>Size</th>
+        <th>Items</th>
+        <th>Creation</th>
+      </tr>
+    </thead>
+    <tbody>
+<% dynamos.each do |dynamo| %>
+<tr>
+<td><%= dynamo['name'] %></td>
+<td><%= dynamo['owner'] %></td>
+<td><%= dynamo['region'] %></td>
+<% if dynamo['size'] < 0 %>
+<td>Unknown</td>
+<% else %>
+<td><%= (dynamo['size']/1000000).round(2) %> Mb</td>
+<% end %>
+<td><%= dynamo['itemcount']%></td>
+<td><%= dynamo['creation'] %></td>
+</tr>
+<% end %>
+    </tbody>
+  </table>
+</div>

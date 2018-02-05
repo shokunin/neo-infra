@@ -10,22 +10,29 @@ require 'neo4j'
 module NeoInfra
   # Provide informations about the accounts available
   class Vpcs
+
+    def initialize
+      @cfg = NeoInfra::Config.new
+      neo4j_url = "http://#{@cfg.neo4j[:host]}:#{@cfg.neo4j[:port]}"
+      Neo4j::Session.open(:server_db, neo4j_url)
+    end
+
     def non_default_vpc_count
-      p Vpc.all
-      21
+      Vpc.all.collect{|x| x.default}.select{|y| y == "false"}.length
     end
 
     def default_vpc_count
-      22
+      Vpc.all.collect{|x| x.default}.select{|y| y == "true"}.length
+    end
+
+    def list_vpcs
+      node_counts = Hash.new(0)
+      Node.all.each{|x| node_counts[x.subnet.subnet.name]+=1}
+      Vpc.all.collect{|x| {'nodes' => node_counts[x.name], 'vpc_id' => x.vpc_id, 'name'=>x.name, 'region' => x.region.region, 'owner' => x.owned.name, 'cidr' => x.cidr, 'default' => x.default} }.select{ |y| y['default'] == "false"}.sort_by{|h| h['nodes']}.reverse
     end
 
     def load
       aws = NeoInfra::Aws.new
-      @cfg = NeoInfra::Config.new
-
-      neo4j_url = "http://#{@cfg.neo4j[:host]}:#{@cfg.neo4j[:port]}"
-      Neo4j::Session.open(:server_db, neo4j_url)
-
       @cfg.accounts.each do |account|
         base_conf = {
           provider: 'AWS',
@@ -34,7 +41,12 @@ module NeoInfra
         }
         aws.regions.each do |region|
           region_conf = { region: region }
-          new_conn = Fog::Compute.new(region_conf.merge(base_conf))
+          begin
+            new_conn = Fog::Compute.new(region_conf.merge(base_conf))
+          rescue
+            puts "Error loading VPCs in region: #{region}"
+            next
+          end
           # Get VPCs
           new_conn.vpcs.all.each do |vpc|
             next unless Vpc.where(vpc_id: vpc.id).empty?

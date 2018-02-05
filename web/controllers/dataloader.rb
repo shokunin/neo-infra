@@ -34,8 +34,7 @@ class Dataloader < Sinatra::Base
     j = NeoInfra::Aws.new
     j.load_regions
     status 200
-    # {}"Loaded #{j.region_count} regions, #{j.az_count} availablity zones"
-    'suck'
+    "Loaded #{j.region_count} regions, #{j.az_count} availablity zones"
   end
 
   get '/vpcs' do
