@@ -66,6 +66,7 @@ module NeoInfra
             next
           end
           new_conn.servers.all.each do |ec2|
+            next if ec2.state == "terminated"
             if SshKey.where(name: ec2.key_name).empty?
               s = SshKey.new(
                 name: ec2.key_name,
@@ -95,6 +96,7 @@ module NeoInfra
             n.save
             NodeAccount.create(from_node: n, to_node: AwsAccount.where(name: account[:name]).first)
             NodeSubnet.create(from_node: n, to_node: Subnet.where(subnet_id: ec2.subnet_id).first)
+
             NodeAz.create(from_node: n, to_node: Az.where(az: ec2.availability_zone).first)
             NodeSshKey.create(from_node: n, to_node: SshKey.where(name: ec2.key_name).first)
             ec2.network_interfaces.select{|x| x.length > 0 }.each do |i|
