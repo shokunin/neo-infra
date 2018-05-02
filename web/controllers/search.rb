@@ -12,7 +12,7 @@ require 'sinatra/contrib'
 
 # Handle loading data into the graph db
 class Search < Sinatra::Base
-  register Sinatra::RespondTo
+  register Sinatra::RespondWith
   set :views, File.join(File.dirname(__FILE__), '..', '/views')
 
   post '/all' do
