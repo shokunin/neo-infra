@@ -6,12 +6,10 @@ require 'nodes'
 require 'accounts'
 require 'fog-aws'
 
-
 # NeoInfra Account information
 module NeoInfra
   # Provide informations about the accounts available
   class Nodes
-
     def initialize
       @cfg = NeoInfra::Config.new
       neo4j_url = "http://#{@cfg.neo4j[:host]}:#{@cfg.neo4j[:port]}"
@@ -20,27 +18,27 @@ module NeoInfra
 
     def display_node(node_id)
       n = Node.where(node_id: node_id).first
-      return {
-        "Name"          => n.name,
-        "IP"            => n.ip,
-        "State"         => n.state,
-        "AMI"           => n.ami,
-        "Public_IP"     => n.public_ip,
-        "AZ"            => n.az.az,
-        "Account"       => n.account.name,
-        "Size"          => n.size,
-        "Subnet"        => n.subnet.name,
-        "VPC"           => n.subnet.subnet.name,
-        "SSH-Key"       => n.sshkey.name,
-        "SecurityGroup" => n.node_sg.name,
+      {
+        'Name'          => n.name,
+        'IP'            => n.ip,
+        'State'         => n.state,
+        'AMI'           => n.ami,
+        'Public_IP'     => n.public_ip,
+        'AZ'            => n.az.az,
+        'Account'       => n.account.name,
+        'Size'          => n.size,
+        'Subnet'        => n.subnet.name,
+        'VPC'           => n.subnet.subnet.name,
+        'SSH-Key'       => n.sshkey.name,
+        'SecurityGroup' => n.node_sg.name
       }
     end
 
     def search_nodes_by_ip(ip)
-      if Node.where(ip: ip).length > 0
-	display_node(Node.where(ip: ip).first.node_id)
+      if !Node.where(ip: ip).empty?
+        display_node(Node.where(ip: ip).first.node_id)
       else
-	display_node(Node.where(public_ip: ip).first.node_id)
+        display_node(Node.where(public_ip: ip).first.node_id)
       end
     end
 
@@ -61,12 +59,12 @@ module NeoInfra
           region_conf = { region: region }
           begin
             new_conn = Fog::Compute.new(region_conf.merge(base_conf))
-          rescue
+          rescue StandardError
             puts "Error loading nodes in region: #{region}"
             next
           end
           new_conn.servers.all.each do |ec2|
-            next if ec2.state == "terminated"
+            next if ec2.state == 'terminated'
             if SshKey.where(name: ec2.key_name).empty?
               s = SshKey.new(
                 name: ec2.key_name,
@@ -99,16 +97,15 @@ module NeoInfra
 
             NodeAz.create(from_node: n, to_node: Az.where(az: ec2.availability_zone).first)
             NodeSshKey.create(from_node: n, to_node: SshKey.where(name: ec2.key_name).first)
-            ec2.network_interfaces.select{|x| x.length > 0 }.each do |i|
-              if i.has_key? 'groupIds'
-                i['groupIds'].each do |g|
-                  begin
-                    NodeSecurityGroup.create(from_node: n, to_node: SecurityGroup.where(sg_id: g).first)
-                  rescue
-                    puts "Security Groups: #{account[:name]}/#{region} couldn't get the following to work:"
-                    p ec2
-                    p g
-                  end
+            ec2.network_interfaces.reject(&:empty?).each do |i|
+              next unless i.key? 'groupIds'
+              i['groupIds'].each do |g|
+                begin
+                  NodeSecurityGroup.create(from_node: n, to_node: SecurityGroup.where(sg_id: g).first)
+                rescue StandardError
+                  puts "Security Groups: #{account[:name]}/#{region} couldn't get the following to work:"
+                  p ec2
+                  p g
                 end
               end
             end

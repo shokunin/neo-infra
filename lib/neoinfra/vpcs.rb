@@ -10,7 +10,6 @@ require 'neo4j'
 module NeoInfra
   # Provide informations about the accounts available
   class Vpcs
-
     def initialize
       @cfg = NeoInfra::Config.new
       neo4j_url = "http://#{@cfg.neo4j[:host]}:#{@cfg.neo4j[:port]}"
@@ -18,17 +17,17 @@ module NeoInfra
     end
 
     def non_default_vpc_count
-      Vpc.all.collect{|x| x.default}.select{|y| y == "false"}.length
+      Vpc.all.collect(&:default).select { |y| y == 'false' }.length
     end
 
     def default_vpc_count
-      Vpc.all.collect{|x| x.default}.select{|y| y == "true"}.length
+      Vpc.all.collect(&:default).select { |y| y == 'true' }.length
     end
 
     def list_vpcs
       node_counts = Hash.new(0)
-      Node.all.each{|x| node_counts[x.subnet.subnet.name]+=1}
-      Vpc.all.collect{|x| {'nodes' => node_counts[x.name], 'vpc_id' => x.vpc_id, 'name'=>x.name, 'region' => x.region.region, 'owner' => x.owned.name, 'cidr' => x.cidr, 'default' => x.default} }.select{ |y| y['default'] == "false"}.sort_by{|h| h['nodes']}.reverse
+      Node.all.each { |x| node_counts[x.subnet.subnet.name] += 1 }
+      Vpc.all.collect { |x| { 'nodes' => node_counts[x.name], 'vpc_id' => x.vpc_id, 'name' => x.name, 'region' => x.region.region, 'owner' => x.owned.name, 'cidr' => x.cidr, 'default' => x.default } }.select { |y| y['default'] == 'false' }.sort_by { |h| h['nodes'] }.reverse
     end
 
     def load
@@ -43,7 +42,7 @@ module NeoInfra
           region_conf = { region: region }
           begin
             new_conn = Fog::Compute.new(region_conf.merge(base_conf))
-          rescue
+          rescue StandardError
             puts "Error loading VPCs in region: #{region}"
             next
           end
@@ -89,7 +88,7 @@ module NeoInfra
             VpcSubnet.create(from_node: sn, to_node: Vpc.where(vpc_id: subnet.vpc_id).first)
             begin
               SubnetAz.create(from_node: sn, to_node: Az.where(az: subnet.availability_zone).first)
-            rescue
+            rescue StandardError
               #  Handle the case of hanging subnets
               puts "Account #{account[:name]} couldn't load the following subnet:"
               p subnet

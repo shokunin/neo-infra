@@ -57,7 +57,6 @@ namespace :load_data do
     j.load_dynamo
   end
 
-
   desc 'Load Lambdas'
   task :lambda do
     puts 'loading Lambdas'

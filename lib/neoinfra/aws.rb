@@ -16,14 +16,13 @@ require 'neoinfra/cloudwatch'
 RFC_1918 = [
   IPAddr.new('10.0.0.0/8'),
   IPAddr.new('172.16.0.0/12'),
-  IPAddr.new('192.168.0.0/16'),
+  IPAddr.new('192.168.0.0/16')
 ].freeze
 
 # NeoInfra Account information
 module NeoInfra
   # Provide informations about the accounts available
   class Aws
-
     def initialize
       @cfg = NeoInfra::Config.new
       neo4j_url = "http://#{@cfg.neo4j[:host]}:#{@cfg.neo4j[:port]}"
@@ -84,7 +83,7 @@ module NeoInfra
     def list_buckets
       buckets = []
       Bucket.all.order('n.size DESC').each do |b|
-        buckets <<  {
+        buckets << {
           'name'       => b.name,
           'size'       => b.size,
           'versioning' => b.versioning,
@@ -93,7 +92,7 @@ module NeoInfra
           'owner'      => b.owner.name
         }
       end
-      return buckets
+      buckets
     end
 
     def load_buckets
@@ -109,10 +108,10 @@ module NeoInfra
           next unless Bucket.where(name: bucket.key).empty?
           begin
             vers = bucket.versioning?.to_s
-            crea =  bucket.creation_date.to_s
-          rescue
-            vers = "unknown"
-            crea = "unknown"
+            crea = bucket.creation_date.to_s
+          rescue StandardError
+            vers = 'unknown'
+            crea = 'unknown'
           end
           b = Bucket.new(
             name: bucket.key,
@@ -134,11 +133,11 @@ module NeoInfra
           aws_access_key_id: account[:key],
           aws_secret_access_key: account[:secret]
         }
-        self.regions.each do |region|
+        regions.each do |region|
           region_conf = { region: region }
           begin
             conn = Fog::Compute.new(region_conf.merge(base_conf))
-          rescue
+          rescue StandardError
             puts "Error loading security groups for region #{region}"
             next
           end
@@ -147,58 +146,56 @@ module NeoInfra
               g = SecurityGroup.new(
                 sg_id: grp.group_id,
                 name: grp.name,
-                description: grp.description,
+                description: grp.description
               )
               g.save
-              SecurityGroupOwner.create(from_node: g, to_node:  AwsAccount.where(account_id: grp.owner_id).first)
-              SecurityGroupVpc.create(from_node: g, to_node:  Vpc.where(vpc_id: grp.vpc_id).first)
+              SecurityGroupOwner.create(from_node: g, to_node: AwsAccount.where(account_id: grp.owner_id).first)
+              SecurityGroupVpc.create(from_node: g, to_node: Vpc.where(vpc_id: grp.vpc_id).first)
             end
             grp.ip_permissions.each do |iprule|
-                  if iprule['ipProtocol'] != "-1"
-                  iprule['ipRanges'].each do |r|
-                    if iprule['toPort'] == -1
-                      to_port = 65535
-                    else
-                      to_port = iprule['toPort']
-                    end
-                    if iprule['fromPort'] == -1
-                      from_port = 0
-                    else
-                      from_port = iprule['fromPort']
-                    end
-                    if IpRules.where(
-                      cidr_block: r['cidrIp'],
-                      direction: 'ingress',
-                      proto: iprule['ipProtocol'],
-                      to_port: to_port,
-                      from_port: from_port,
-                    ).empty?
-                      rl = IpRules.new(
-                        cidr_block: r['cidrIp'],
-                        direction: 'ingress',
-                        proto: iprule['ipProtocol'],
-                        to_port: to_port,
-                        from_port: from_port,
-                        private: RFC_1918.any? { |rfc| rfc.include?(IPAddr.new(r['cidrIp']))}
-                      )
-                      rl.save
-                    end
-                    # TODO: remove duplicate Relationships
-                    SecurityGroupsIpRules.create(
-                      from_node: SecurityGroup.where(sg_id: grp.group_id).first,
-                      to_node: IpRules.where(
-                        cidr_block: r['cidrIp'],
-                        direction: 'ingress',
-                        proto: iprule['ipProtocol'],
-                        to_port: to_port,
-                        from_port: from_port,
-                        private: RFC_1918.any? { |rfc| rfc.include?(IPAddr.new(r['cidrIp']))}
-                      ).first
-                    )
-                  end
+              next unless iprule['ipProtocol'] != '-1'
+              iprule['ipRanges'].each do |r|
+                to_port = if iprule['toPort'] == -1
+                            65_535
+                          else
+                            iprule['toPort']
+                          end
+                from_port = if iprule['fromPort'] == -1
+                              0
+                            else
+                              iprule['fromPort']
+                            end
+                if IpRules.where(
+                  cidr_block: r['cidrIp'],
+                  direction: 'ingress',
+                  proto: iprule['ipProtocol'],
+                  to_port: to_port,
+                  from_port: from_port
+                ).empty?
+                  rl = IpRules.new(
+                    cidr_block: r['cidrIp'],
+                    direction: 'ingress',
+                    proto: iprule['ipProtocol'],
+                    to_port: to_port,
+                    from_port: from_port,
+                    private: RFC_1918.any? { |rfc| rfc.include?(IPAddr.new(r['cidrIp'])) }
+                  )
+                  rl.save
                 end
+                # TODO: remove duplicate Relationships
+                SecurityGroupsIpRules.create(
+                  from_node: SecurityGroup.where(sg_id: grp.group_id).first,
+                  to_node: IpRules.where(
+                    cidr_block: r['cidrIp'],
+                    direction: 'ingress',
+                    proto: iprule['ipProtocol'],
+                    to_port: to_port,
+                    from_port: from_port,
+                    private: RFC_1918.any? { |rfc| rfc.include?(IPAddr.new(r['cidrIp'])) }
+                  ).first
+                )
               end
-              #
+            end
           end
         end
       end
@@ -207,7 +204,7 @@ module NeoInfra
     def list_lambdas
       lambdas = []
       Lambda.all.each do |l|
-        lambdas <<  {
+        lambdas << {
           'name'           => l.name,
           'runtime'        => l.runtime,
           'handler'        => l.handler,
@@ -218,7 +215,7 @@ module NeoInfra
           'owner'          => l.owner.name
         }
       end
-      return lambdas
+      lambdas
     end
 
     def load_lambda
@@ -227,21 +224,21 @@ module NeoInfra
           aws_access_key_id: account[:key],
           aws_secret_access_key: account[:secret]
         }
-        self.regions.each do |region|
+        regions.each do |region|
           region_conf = { region: region }
           begin
             lambdas = Fog::AWS::Lambda.new(region_conf.merge(base_conf))
             lambdas.list_functions.data[:body]['Functions'].each do |f|
               next unless Lambda.where(name: f['FunctionArn']).empty?
               l = Lambda.new(
-                  name:             f['FunctionName'],
-                  runtime:          f['Runtime'],
-                  lambda_timeout:   f['Timeout'],
-                  handler:          f['Handler'],
-                  memorysize:       f['MemorySize'],
-                  arn:              f['FunctionArn'],
-                  codesize:         f['CodeSize'],
-                  last_modified:    f['LastModified'],
+                name:             f['FunctionName'],
+                runtime:          f['Runtime'],
+                lambda_timeout:   f['Timeout'],
+                handler:          f['Handler'],
+                memorysize:       f['MemorySize'],
+                arn:              f['FunctionArn'],
+                codesize:         f['CodeSize'],
+                last_modified:    f['LastModified']
               )
               l.save
               LambdaAccount.create(from_node: l, to_node: AwsAccount.where(name: account[:name]).first)
@@ -258,7 +255,7 @@ module NeoInfra
     def list_dynamos
       dynamos = []
       Dynamo.all.order('n.sizebytes DESC').each do |d|
-        dynamos <<  {
+        dynamos << {
           'name'       => d.name,
           'size'       => d.sizebytes,
           'itemcount'  => d.itemcount,
@@ -268,7 +265,7 @@ module NeoInfra
           'owner'      => d.owner.name
         }
       end
-      return dynamos
+      dynamos
     end
 
     def load_dynamo
@@ -277,24 +274,24 @@ module NeoInfra
           aws_access_key_id: account[:key],
           aws_secret_access_key: account[:secret]
         }
-        self.regions.each do |region|
+        regions.each do |region|
           region_conf = { region: region }
           begin
             dyns = Fog::AWS::DynamoDB.new(region_conf.merge(base_conf))
-            dyns.list_tables.data[:body]["TableNames"].each do |table|
+            dyns.list_tables.data[:body]['TableNames'].each do |table|
               tb = dyns.describe_table(table).data[:body]['Table']
               next unless Dynamo.where(name: table['TableId']).empty?
               d = Dynamo.new(
-                  tableid: 	tb['TableId'],
-                  name: 	tb['TableName'],
-                  creation: Time.at(tb['CreationDateTime']).to_datetime.strftime("%F %H:%M:%S %Z"),
-                  arn: 		tb['TableArn'],
-                  itemcount: 	tb['ItemCount'],
-                  sizebytes: 	tb['TableSizeBytes'],
-                  status: 	tb['TableStatus'],
-                  readcap: 	tb['ProvisionedThroughput']['ReadCapacityUnits'],
-                  writecap: 	tb['ProvisionedThroughput']['WriteCapacityUnits'],
-                  capdecreases: tb['ProvisionedThroughput']['NumberOfDecreasesToday'],
+                tableid:   tb['TableId'],
+                name:   tb['TableName'],
+                creation: Time.at(tb['CreationDateTime']).to_datetime.strftime('%F %H:%M:%S %Z'),
+                arn:     tb['TableArn'],
+                itemcount:   tb['ItemCount'],
+                sizebytes:   tb['TableSizeBytes'],
+                status:   tb['TableStatus'],
+                readcap:   tb['ProvisionedThroughput']['ReadCapacityUnits'],
+                writecap:   tb['ProvisionedThroughput']['WriteCapacityUnits'],
+                capdecreases: tb['ProvisionedThroughput']['NumberOfDecreasesToday']
               )
               d.save
               DynamoAccount.create(from_node: d, to_node: AwsAccount.where(name: account[:name]).first)
@@ -305,9 +302,9 @@ module NeoInfra
             next
           end
         end
-        #dyns.list_tables.each do |table|
+        # dyns.list_tables.each do |table|
         #  p table
-        #end
+        # end
       end
     end
 
@@ -328,7 +325,7 @@ module NeoInfra
             multi_az: rds.multi_az.to_s,
             endpoint: rds.endpoint['Address'],
             port: rds.endpoint['Port'],
-            allocated_storage: rds.allocated_storage,
+            allocated_storage: rds.allocated_storage
           )
           r.save
           RdsAz.create(from_node: r, to_node: Az.where(az: rds.availability_zone).first)

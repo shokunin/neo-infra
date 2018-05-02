@@ -26,7 +26,7 @@ module NeoInfra
           new_conn = Fog::Compute.new(region_conf.merge(base_conf))
           new_conn.servers.all.each do |ec2|
             %i[required recommended].each do |a|
-              next unless @cfg.tag_policy.has_key? a
+              next unless @cfg.tag_policy.key? a
               next if (ec2.tags.keys.sort & @cfg.tag_policy[a].sort) == @cfg.tag_policy[a].sort
               results[ec2.id].merge!("#{a}_missing_tags" => @cfg.tag_policy[a].sort - ec2.tags.keys.sort,
                                      'tags' => ec2.tags.keys.sort,
