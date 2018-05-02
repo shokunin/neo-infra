@@ -5,3 +5,4 @@ data/*
 vendor/*
 .bundle
 tmp_notes
+tmp/*

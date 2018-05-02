@@ -8,7 +8,7 @@ require 'json'
 require 'neoinfra'
 require 'sinatra'
 require 'sinatra/base'
-require 'sinatra/respond_to'
+require 'sinatra/contrib'
 
 # Handle loading data into the graph db
 class Views < Sinatra::Base
