@@ -218,6 +218,25 @@ module NeoInfra
       lambdas
     end
 
+    def list_rds
+      rds = []
+      Rds.all.each do |r|
+        rds << {
+          'name'              => r.name,
+          'size'              => r.size,
+          'engine'            => r.engine,
+          'engine_version'    => r.engine_version,
+          'multi_az'          => r.multi_az,
+          'endpoint'          => r.endpoint,
+          'port'              => r.port,
+          'allocated_storage' => r.allocated_storage,
+          'owner'             => r.owner.name,
+          'az'                => r.az.az,
+        }
+      end
+      rds
+    end
+
     def load_lambda
       @cfg.accounts.each do |account|
         base_conf = {
@@ -314,22 +333,25 @@ module NeoInfra
           aws_access_key_id: account[:key],
           aws_secret_access_key: account[:secret]
         }
-        s = Fog::AWS::RDS.new(base_conf)
-        s.servers.each do |rds|
-          next unless Rds.where(name: rds.id).empty?
-          r = Rds.new(
-            name: rds.id,
-            size: rds.flavor_id,
-            engine: rds.engine,
-            engine_version: rds.engine_version,
-            multi_az: rds.multi_az.to_s,
-            endpoint: rds.endpoint['Address'],
-            port: rds.endpoint['Port'],
-            allocated_storage: rds.allocated_storage
-          )
-          r.save
-          RdsAz.create(from_node: r, to_node: Az.where(az: rds.availability_zone).first)
-          RdsAccount.create(from_node: r, to_node: AwsAccount.where(name: account[:name]).first)
+        regions.each do |region|
+          region_conf = { region: region }
+          s = Fog::AWS::RDS.new(region_conf.merge(base_conf))
+          s.servers.each do |rds|
+            next unless Rds.where(name: rds.id).empty?
+            r = Rds.new(
+              name: rds.id,
+              size: rds.flavor_id,
+              engine: rds.engine,
+              engine_version: rds.engine_version,
+              multi_az: rds.multi_az.to_s,
+              endpoint: rds.endpoint['Address'],
+              port: rds.endpoint['Port'],
+              allocated_storage: rds.allocated_storage
+            )
+            r.save
+            RdsAz.create(from_node: r, to_node: Az.where(az: rds.availability_zone).first)
+            RdsAccount.create(from_node: r, to_node: AwsAccount.where(name: account[:name]).first)
+          end
         end
       end
     end

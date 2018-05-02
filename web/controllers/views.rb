@@ -58,4 +58,15 @@ class Views < Sinatra::Base
       end
     end
   end
+
+  get '/rds' do
+    j = NeoInfra::Aws.new
+    respond_to do |wants|
+      wants.html do
+        erb :view_rds,
+            layout: :base_layout,
+            locals: { rds: j.list_rds }
+      end
+    end
+  end
 end
