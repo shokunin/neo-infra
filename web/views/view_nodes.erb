@@ -1,0 +1,44 @@
+<h2 class="title"><br><br><center>Node Information</center><br><br></h2>
+<div class="container">
+
+<% if nodes[:errors].length > 0 %>
+<% nodes[:errors].each do |e| %>
+	<br><%= e %>
+<% end %>
+<% else %>
+
+<table class="table table-hover">
+<tbody>
+<tr> <th>Name</th>
+<th>IP</th>
+<th>Public IP</th>
+<th>Account</th>
+<th>Size</th>
+<th>Subnet</th>
+<th>AZ</th>
+<th>VPC</th>
+<th>AMI</th>
+<th>State</th>
+<th>Security Group</th>
+<tr>
+<% nodes[:nodes].each do |n| %>
+<tr>
+	<td><%= n['Name'] %></td>
+	<td><%= n['IP'] %></td>
+	<td><%= n['Public_IP'] %></td>
+	<td><%= n['Account'] %></td>
+	<td><%= n['Size'] %></td>
+	<td><%= n['Subnet'] %></td>
+	<td><%= n['AZ'] %></td>
+	<td><%= n['VPC'] %></td>
+	<td><%= n['AMI'] %></td>
+	<td><%= n['State'] %></td>
+	<td><%= n['SecurityGroup'] %></td>
+</tr>
+<% end %>
+</tbody>
+</table>
+
+<% end %>
+
+</div>

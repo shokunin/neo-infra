@@ -34,6 +34,15 @@ class Search < Sinatra::Base
               locals: { node: n.search_nodes_by_node_id(params['search']) }
         end
       end
+    else
+      n = NeoInfra::Nodes.new
+      respond_to do |wants|
+        wants.html do
+          erb :view_nodes,
+              layout: :base_layout,
+              locals: { nodes: n.search_nodes_by_name(params['search']) }
+        end
+      end
     end
   end
 end

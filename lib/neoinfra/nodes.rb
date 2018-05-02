@@ -34,6 +34,18 @@ module NeoInfra
       }
     end
 
+    def search_nodes_by_name(name)
+      results = {:nodes => [], :errors => []}
+      if !Node.where(name: name).empty?
+        Node.where(name: name).each do |k|
+          results[:nodes] << display_node(k.node_id)
+        end
+      else
+        results[:errors] << "Could not find a node with name: #{name}"
+      end
+      return results
+    end
+
     def search_nodes_by_ip(ip)
       if !Node.where(ip: ip).empty?
         display_node(Node.where(ip: ip).first.node_id)
