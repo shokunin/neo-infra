@@ -9,7 +9,7 @@ Dir.glob(
 ).reject { |c| File.basename(c) == 'controllers.rb' }.each do |x|
   begin
     require x
-  rescue
+  rescue StandardError
     puts "unable to load: #{x}"
   end
 end

@@ -61,4 +61,3 @@ class DynamoRegion
   to_class :Region
   type :region
 end
-

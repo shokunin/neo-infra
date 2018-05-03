@@ -15,17 +15,17 @@ module NeoInfra
       }
       cwstats = Fog::AWS::CloudWatch.new(conf)
       begin
-      cwstats.get_metric_statistics('Statistics' => ['Maximum'],
-                                    'StartTime'  => DateTime.now - 7,
-                                    'EndTime'    => DateTime.now,
-                                    'Period'     => 3600,
-                                    'MetricName' => 'BucketSizeBytes',
-                                    'Namespace'  => 'AWS/S3',
-                                    'Dimensions' => [
-                                      { 'Name' => 'BucketName', 'Value' => bucket },
-                                      { 'Name' => 'StorageType', 'Value' => 'StandardStorage' }
-                                    ]).data[:body]['GetMetricStatisticsResult']['Datapoints'].last['Maximum']
-      rescue
+        cwstats.get_metric_statistics('Statistics' => ['Maximum'],
+                                      'StartTime'  => DateTime.now - 7,
+                                      'EndTime'    => DateTime.now,
+                                      'Period'     => 3600,
+                                      'MetricName' => 'BucketSizeBytes',
+                                      'Namespace'  => 'AWS/S3',
+                                      'Dimensions' => [
+                                        { 'Name' => 'BucketName', 'Value' => bucket },
+                                        { 'Name' => 'StorageType', 'Value' => 'StandardStorage' }
+                                      ]).data[:body]['GetMetricStatisticsResult']['Datapoints'].last['Maximum']
+      rescue StandardError
         puts "Unable to get stats for #{bucket} returning -1"
         return -1
       end

@@ -2,13 +2,14 @@
 
 source 'http://rubygems.org'
 
-gem 'fog-aws', :git => 'https://github.com/maguec/fog-aws.git', :branch => 'fix_vpc_parser_issue_387'
+gem 'fog-aws'
 gem 'mime-types'
 gem 'neo4j', '7.2.0'
+gem 'rake'
 gem 'rspec'
 gem 'rubytree'
 gem 'sinatra'
-gem 'sinatra-respond_to'
+gem 'sinatra-contrib'
 
 group :development do
   gem 'rubocop', require: false

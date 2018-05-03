@@ -2,11 +2,11 @@
 
 require 'sinatra'
 require 'sinatra/base'
-require 'sinatra/respond_to'
+require 'sinatra/contrib'
 
 # Display the Top level Web page
 class Toppage < Sinatra::Base
-  register Sinatra::RespondTo
+  register Sinatra::RespondWith
   set :public_folder, File.join(File.dirname(__FILE__), '..', '/static')
   set :views, File.join(File.dirname(__FILE__), '..', '/views')
 

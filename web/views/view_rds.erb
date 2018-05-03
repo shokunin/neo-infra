@@ -1,0 +1,30 @@
+<h2 class="title"><br><br><center>RDS Intances</center></h2>
+
+<div class="container">
+  <table class="table table-hover">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Owner</th>
+        <th>AZ</th>
+        <th>Engine</th>
+        <th>Engine Version</th>
+        <th>Endpoint</th>
+        <th>Port</th>
+      </tr>
+    </thead>
+    <tbody>
+<% rds.each do |r| %>
+<tr>
+<td><%= r['name'] %></td>
+<td><%= r['owner'] %></td>
+<td><%= r['az'] %></td>
+<td><%= r['engine'] %></td>
+<td><%= r['engine_version'] %></td>
+<td><%= r['endpoint'] %></td>
+<td><%= r['port'] %></td>
+</tr>
+<% end %>
+    </tbody>
+  </table>
+</div>

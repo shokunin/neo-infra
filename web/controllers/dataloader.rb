@@ -7,11 +7,11 @@ $LOAD_PATH.unshift(lib_dir) unless
 require 'neoinfra'
 require 'sinatra'
 require 'sinatra/base'
-require 'sinatra/respond_to'
+require 'sinatra/contrib'
 
 # Handle loading data into the graph db
 class Dataloader < Sinatra::Base
-  register Sinatra::RespondTo
+  register Sinatra::RespondWith
   set :views, File.join(File.dirname(__FILE__), '..', '/views')
 
   get '/all' do

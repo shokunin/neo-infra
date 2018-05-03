@@ -27,7 +27,7 @@ class SecurityGroup
   has_one  :out, :sg_owner, rel_class: :SecurityGroupOwner
   has_one  :out, :sg_vpc, rel_class: :SecurityGroupVpc
   has_many :out, :ip_rules, rel_class: :SecurityGroupsIpRules
-#  has_many :out, :sg_rules, rel_class: :SecurityGroupsSgRules
+  #  has_many :out, :sg_rules, rel_class: :SecurityGroupsSgRules
 end
 
 class NodeSecurityGroup
