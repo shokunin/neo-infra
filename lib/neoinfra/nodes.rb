@@ -104,11 +104,16 @@ module NeoInfra
               ami: ec2.image_id
             )
             n.save
-            NodeAccount.create(from_node: n, to_node: AwsAccount.where(name: account[:name]).first)
-            NodeSubnet.create(from_node: n, to_node: Subnet.where(subnet_id: ec2.subnet_id).first)
+            begin
+              NodeAccount.create(from_node: n, to_node: AwsAccount.where(name: account[:name]).first)
+              NodeSubnet.create(from_node: n, to_node: Subnet.where(subnet_id: ec2.subnet_id).first)
+              NodeAz.create(from_node: n, to_node: Az.where(az: ec2.availability_zone).first)
+              NodeSshKey.create(from_node: n, to_node: SshKey.where(name: ec2.key_name).first)
+            rescue Exception => e
+              puts "Account #{account[:name]} couldn't load the following node: #{e.message}"
+              p n
+            end
 
-            NodeAz.create(from_node: n, to_node: Az.where(az: ec2.availability_zone).first)
-            NodeSshKey.create(from_node: n, to_node: SshKey.where(name: ec2.key_name).first)
             ec2.network_interfaces.reject(&:empty?).each do |i|
               next unless i.key? 'groupIds'
               i['groupIds'].each do |g|

@@ -88,9 +88,9 @@ module NeoInfra
             VpcSubnet.create(from_node: sn, to_node: Vpc.where(vpc_id: subnet.vpc_id).first)
             begin
               SubnetAz.create(from_node: sn, to_node: Az.where(az: subnet.availability_zone).first)
-            rescue StandardError
+            rescue Exception => e 
               #  Handle the case of hanging subnets
-              puts "Account #{account[:name]} couldn't load the following subnet:"
+              puts "Account #{account[:name]} couldn't load the following subnet: #{e.message}"
               p subnet
             end
           end
