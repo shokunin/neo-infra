@@ -49,19 +49,23 @@ module NeoInfra
     end
 
     def azs(region)
-      account = @cfg.accounts.first
-      base_conf = {
-        provider: 'AWS',
-        aws_access_key_id: account[:key],
-        aws_secret_access_key: account[:secret],
-        region: region
-      }
-      begin
-        conn = Fog::Compute.new(base_conf)
-        conn.describe_availability_zones.data[:body]['availabilityZoneInfo'].collect { |x| x['zoneName'] }
-      rescue Exception => e
-        puts "Zone couldn't load region #{region}: #{e.message}"
+      azs = []
+      @cfg.accounts.each do |account|
+        next unless Region.where(region: region).empty?
+        base_conf = {
+          provider: 'AWS',
+          aws_access_key_id: account[:key],
+          aws_secret_access_key: account[:secret],
+          region: region
+        }
+        begin
+          conn = Fog::Compute.new(base_conf)
+          azs << conn.describe_availability_zones.data[:body]['availabilityZoneInfo'].collect { |x| x['zoneName'] }
+        rescue Exception => e
+          puts "Zone couldn't load region #{region}: #{e.message}"
+        end
       end
+      azs.uniq
     end
 
     def load_regions
