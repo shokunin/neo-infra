@@ -149,8 +149,15 @@ module NeoInfra
                 description: grp.description
               )
               g.save
-              SecurityGroupOwner.create(from_node: g, to_node: AwsAccount.where(account_id: grp.owner_id).first)
-              SecurityGroupVpc.create(from_node: g, to_node: Vpc.where(vpc_id: grp.vpc_id).first)
+              begin
+                SecurityGroupOwner.create(from_node: g, to_node: AwsAccount.where(account_id: grp.owner_id).first)
+                unless grp.vpc_id.nil?
+                  SecurityGroupVpc.create(from_node: g, to_node: Vpc.where(vpc_id: grp.vpc_id).first)
+                end
+              rescue
+                puts "Account #{account[:name]} couldn't load the following security group:"
+                p grp
+              end
             end
             grp.ip_permissions.each do |iprule|
               next unless iprule['ipProtocol'] != '-1'
@@ -349,8 +356,14 @@ module NeoInfra
               allocated_storage: rds.allocated_storage
             )
             r.save
-            RdsAz.create(from_node: r, to_node: Az.where(az: rds.availability_zone).first)
-            RdsAccount.create(from_node: r, to_node: AwsAccount.where(name: account[:name]).first)
+            begin
+              RdsAz.create(from_node: r, to_node: Az.where(az: rds.availability_zone).first)
+              RdsAccount.create(from_node: r, to_node: AwsAccount.where(name: account[:name]).first)
+            rescue Exception => e
+              puts "Account #{account[:name]} couldn't load the following rds: #{e.message}"
+              p r
+              next
+            end
           end
         end
       end
