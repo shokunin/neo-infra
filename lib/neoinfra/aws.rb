@@ -59,7 +59,6 @@ module NeoInfra
         }
         begin
           conn = Fog::Compute.new(base_conf)
-          p conn.describe_availability_zones.data[:body]['availabilityZoneInfo'].collect { |x| x['zoneName'] }
           conn.describe_availability_zones.data[:body]['availabilityZoneInfo'].collect { |x| x['zoneName'] }.each do |z|
             azs << z
           end
