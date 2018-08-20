@@ -16,6 +16,6 @@ end
 class Node2Stats
   include Neo4j::ActiveRel
   from_class :Node
-  to_class   :NodeStatus
+  to_class   :NodeStats
   type       :node
 end
