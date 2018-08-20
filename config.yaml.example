@@ -13,10 +13,19 @@ accounts:
     :secret: test2_secret
 
 tag_policy:
-   :required:
-   - Application
-   - Owner
-   - Environment
-   :recommended:
-   - Product
-   - Name
+   :nodes:
+     :required:
+       - Application
+       - Owner
+       - Environment
+     :recommended:
+       - Product
+       - Name
+   :vpcs:
+     :required:
+       - Application
+       - Owner
+       - Environment
+     :recommended:
+       - Product
+       - Name
