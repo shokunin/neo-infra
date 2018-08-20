@@ -13,10 +13,10 @@ accounts:
     :secret: test2_secret
 
 tag_policy:
-  - :required:
-    - Application
-    - Owner
-    - Environment
-  - :recommended:
-    - Product
-    - Name
+   :required:
+   - Application
+   - Owner
+   - Environment
+   :recommended:
+   - Product
+   - Name
