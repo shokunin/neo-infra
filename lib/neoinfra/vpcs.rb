@@ -91,8 +91,8 @@ module NeoInfra
               state: subnet.state
             )
             sn.save
-            VpcSubnet.create(from_node: sn, to_node: Vpc.where(vpc_id: subnet.vpc_id).first)
             begin
+              VpcSubnet.create(from_node: sn, to_node: Vpc.where(vpc_id: subnet.vpc_id).first)
               SubnetAz.create(from_node: sn, to_node: Az.where(az: subnet.availability_zone).first)
             rescue Exception => e 
               #  Handle the case of hanging subnets
