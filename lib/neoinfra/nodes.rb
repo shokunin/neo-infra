@@ -3,6 +3,7 @@
 require 'neo4j'
 require 'neoinfra'
 require 'nodes'
+require 'node_stats'
 require 'accounts'
 require 'fog-aws'
 
@@ -104,11 +105,20 @@ module NeoInfra
               ami: ec2.image_id
             )
             n.save
+            cw = NeoInfra::Cloudwatch.new
+            stats = cw.get_instance_cpu(account[:key], account[:secret], region, ec2.id)
+            s = NodeStats.new(
+              node_id: ec2.id,
+              cpu_max: stats[:cpu_max],
+              cpu_avg: stats[:cpu_avg],
+            )
+            s.save
             begin
               NodeAccount.create(from_node: n, to_node: AwsAccount.where(name: account[:name]).first)
               NodeAz.create(from_node: n, to_node: Az.where(az: ec2.availability_zone).first)
               NodeSshKey.create(from_node: n, to_node: SshKey.where(name: ec2.key_name).first)
               NodeSubnet.create(from_node: n, to_node: Subnet.where(subnet_id: ec2.subnet_id).first)
+              Node2Stats.create(from_node: n, to_node: s)
             rescue Exception => e
               puts "Account #{account[:name]} couldn't load the following node: #{e.message}"
               p n

@@ -16,4 +16,5 @@ module NeoInfra
   require 'neoinfra/aws'
   require 'neoinfra/vpcs'
   require 'neoinfra/nodes'
+  require 'neoinfra/cloudwatch'
 end
