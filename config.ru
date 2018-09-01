@@ -23,3 +23,7 @@ end
 map '/search' do
   run Search
 end
+
+map '/graph' do
+  run Graph
+end
