@@ -70,12 +70,12 @@ class Views < Sinatra::Base
     end
   end
 
-  get '/graph' do
+  get '/graph/:graph_type' do
     respond_to do |wants|
       wants.html do
         erb :graphview,
             layout: :base_layout,
-            locals: { graphview: "foo" }
+            locals: { graph_type: params['graph_type'] }
       end
     end
   end

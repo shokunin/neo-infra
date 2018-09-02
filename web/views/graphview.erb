@@ -13,7 +13,7 @@ var tree = d3.cluster()
 var stratify = d3.stratify()
     .parentId(function(d) { return d.id.substring(0, d.id.lastIndexOf(".")); });
 
-d3.csv("/graph/vpcs", function(error, data) {
+d3.csv("/graph/<%= graph_type %>", function(error, data) {
   if (error) throw error;
 
   var root = stratify(data)
