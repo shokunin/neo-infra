@@ -16,7 +16,8 @@ class Graph < Sinatra::Base
   set :views, File.join(File.dirname(__FILE__), '..', '/views')
 
   get '/vpcs' do
+    headers('Content-Type' => "text/csv")
     g = NeoInfra::Graph.new
-    g.graph_vpcs.to_json
+    g.graph_vpcs
   end
 end

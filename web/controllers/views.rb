@@ -69,4 +69,14 @@ class Views < Sinatra::Base
       end
     end
   end
+
+  get '/graph' do
+    respond_to do |wants|
+      wants.html do
+        erb :graphview,
+            layout: :base_layout,
+            locals: { graphview: "foo" }
+      end
+    end
+  end
 end
