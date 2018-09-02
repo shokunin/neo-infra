@@ -5,11 +5,18 @@
 }
 
 .node text {
-  font: 10px sans-serif;
+  font: 12px sans-serif;
+}
+
+.node--leaf circle {
+  fill: #FF3333;
+  stroke-width: 1.5px;
 }
 
 .node--internal circle {
-  fill: #555;
+  fill: steelblue;
+  stroke: steelblue;
+  stroke-width: 1.5px;
 }
 
 .node--internal text {
