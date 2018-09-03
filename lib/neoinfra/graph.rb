@@ -7,6 +7,8 @@ require 'fog-aws'
 require 'neo4j'
 require 'csv'
 require 'sinatra'
+require 's3'
+
 
 # NeoInfra Account information
 module NeoInfra
@@ -40,6 +42,30 @@ module NeoInfra
       end
       return csv_string.gsub('"', '')
     end
+ 
+    def graph_buckets
+      csv_string = CSV.generate(force_quotes: false ) do |csv|
+        csv << ['id,value']
+        csv << ['aws,']
+        @cfg = NeoInfra::Config.new
+        @cfg.accounts.each do |account|
+          csv << ["aws.#{account[:name]},"]
+
+          Bucket.all.select{|x| x.owner.name == account[:name]}.collect{|y| y.region.region}.uniq.each do |region|
+            csv << ["aws.#{account[:name]}.#{region},"]
+          end
+
+          Bucket.all.each do |bucket|
+            if bucket.owner.name == account[:name]
+              csv << ["aws.#{account[:name]}.#{bucket.region.region}.#{bucket.name.gsub("\.", ':')},1"]
+            end
+          end
+
+        end
+      end
+      return csv_string.gsub('"', '')
+    end
+       ##
 
   end
 end

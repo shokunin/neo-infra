@@ -20,4 +20,11 @@ class Graph < Sinatra::Base
     g = NeoInfra::Graph.new
     g.graph_vpcs
   end
+
+  get '/buckets' do
+    headers('Content-Type' => "text/csv")
+    g = NeoInfra::Graph.new
+    g.graph_buckets
+  end
+
 end
