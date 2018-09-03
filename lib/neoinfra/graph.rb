@@ -25,11 +25,17 @@ module NeoInfra
         @cfg = NeoInfra::Config.new
         @cfg.accounts.each do |account|
           csv << ["aws.#{account[:name]},"]
+
+          Vpc.where(default: "false").select{|x| x.owned.name == account[:name]}.collect{|y| y.region.region}.uniq.each do |region|
+            csv << ["aws.#{account[:name]}.#{region},"]
+          end
+
           Vpc.where(default: "false").each do |vpc|
             if vpc.owned.name == account[:name]
-              csv << ["aws.#{account[:name]}.#{vpc.name},1"]
+              csv << ["aws.#{account[:name]}.#{vpc.region.region}.#{vpc.name},1"]
             end
           end
+
         end
       end
       return csv_string.gsub('"', '')
