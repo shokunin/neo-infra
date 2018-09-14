@@ -101,6 +101,7 @@ module NeoInfra
     end
 
     def load_buckets
+      aws = NeoInfra::Aws.new
       cw = NeoInfra::Cloudwatch.new
       @cfg.accounts.each do |account|
         base_conf = {
@@ -108,25 +109,24 @@ module NeoInfra
           aws_access_key_id: account[:key],
           aws_secret_access_key: account[:secret]
         }
-        s = Fog::Storage.new(base_conf)
-        s.directories.each do |bucket|
-          next unless Bucket.where(name: bucket.key).empty?
-          begin
+        aws.regions.each do |region|
+          region_conf = { region: region }
+          s = Fog::Storage.new(region_conf.merge(base_conf))
+          s.directories.each do |bucket|
+            next unless bucket.location == region
+            next unless Bucket.where(name: bucket.key).empty?
             vers = bucket.versioning?.to_s
             crea = bucket.creation_date.to_s
-          rescue StandardError
-            vers = 'unknown'
-            crea = 'unknown'
+            b = Bucket.new(
+              name: bucket.key,
+              versioning: vers,
+              creation: crea,
+              size: cw.get_bucket_size(account[:key], account[:secret], bucket.location, bucket.key)
+            )
+            b.save
+            BucketRegion.create(from_node: b, to_node: Region.where(region: bucket.location).first)
+            BucketAccount.create(from_node: b, to_node: AwsAccount.where(name: account[:name]).first)
           end
-          b = Bucket.new(
-            name: bucket.key,
-            versioning: vers,
-            creation: crea,
-            size: cw.get_bucket_size(account[:key], account[:secret], bucket.location, bucket.key)
-          )
-          b.save
-          BucketRegion.create(from_node: b, to_node: Region.where(region: bucket.location).first)
-          BucketAccount.create(from_node: b, to_node: AwsAccount.where(name: account[:name]).first)
         end
       end
     end
