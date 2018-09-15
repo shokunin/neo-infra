@@ -64,6 +64,14 @@ namespace :load_data do
     j.load_lambda
   end
 
+  desc 'Load SQS'
+  task :sqs do
+    puts 'loading SQS'
+    j = NeoInfra::Aws.new
+    j.load_queues
+  end
+
+
   desc 'Load Everything'
-  task all: %i[accounts regions vpcs buckets security_groups nodes rds dynamo lambda]
+  task all: %i[accounts regions vpcs buckets security_groups nodes rds dynamo lambda sqs]
 end

@@ -5,6 +5,7 @@ require 'regions'
 require 'mime-types'
 require 'fog-aws'
 require 's3'
+require 'sqs'
 require 'date'
 require 'ipaddr'
 require 'neo4j'
@@ -101,6 +102,7 @@ module NeoInfra
     end
 
     def load_buckets
+      aws = NeoInfra::Aws.new
       cw = NeoInfra::Cloudwatch.new
       @cfg.accounts.each do |account|
         base_conf = {
@@ -108,29 +110,28 @@ module NeoInfra
           aws_access_key_id: account[:key],
           aws_secret_access_key: account[:secret]
         }
-        s = Fog::Storage.new(base_conf)
-        s.directories.each do |bucket|
-          next unless Bucket.where(name: bucket.key).empty?
-          begin
+        aws.regions.each do |region|
+          region_conf = { region: region }
+          s = Fog::Storage.new(region_conf.merge(base_conf))
+          s.directories.each do |bucket|
+            next unless bucket.location == region
+            next unless Bucket.where(name: bucket.key).empty?
             vers = bucket.versioning?.to_s
             crea = bucket.creation_date.to_s
-          rescue StandardError
-            vers = 'unknown'
-            crea = 'unknown'
+            b = Bucket.new(
+              name: bucket.key,
+              versioning: vers,
+              creation: crea,
+              size: cw.get_bucket_size(account[:key], account[:secret], bucket.location, bucket.key)
+            )
+            b.save
+            BucketRegion.create(from_node: b, to_node: Region.where(region: bucket.location).first)
+            BucketAccount.create(from_node: b, to_node: AwsAccount.where(name: account[:name]).first)
           end
-          b = Bucket.new(
-            name: bucket.key,
-            versioning: vers,
-            creation: crea,
-            size: cw.get_bucket_size(account[:key], account[:secret], bucket.location, bucket.key)
-          )
-          b.save
-          BucketRegion.create(from_node: b, to_node: Region.where(region: bucket.location).first)
-          BucketAccount.create(from_node: b, to_node: AwsAccount.where(name: account[:name]).first)
         end
       end
     end
-
+####
     def load_security_groups
       @cfg.accounts.each do |account|
         base_conf = {
@@ -338,6 +339,53 @@ module NeoInfra
         # end
       end
     end
+
+
+    def list_queues
+      queues = []
+      SQSQueue.all.order('n.name DESC').each do |d|
+        queues << {
+          'name'      => d.name,
+          'modified'  => d.modified,
+          'creation'  => d.creation,
+          'retention' => d.retention,
+          'maxsize'   => d.maxsize,
+          'region'    => d.region.region,
+          'owner'     => d.owner.name
+        }
+      end
+      queues
+    end
+
+    def load_queues
+      aws = NeoInfra::Aws.new
+      cw = NeoInfra::Cloudwatch.new
+      @cfg.accounts.each do |account|
+        base_conf = {
+          aws_access_key_id: account[:key],
+          aws_secret_access_key: account[:secret]
+        }
+        aws.regions.each do |region|
+          region_conf = { region: region }
+          q = Fog::AWS::SQS.new(region_conf.merge(base_conf))
+          q.list_queues.data[:body]['QueueUrls'].each do |x|
+            next unless SQSQueue.where(url: x).empty?
+            theAttrs = q.get_queue_attributes(x, "All").data[:body]['Attributes']
+            z = SQSQueue.new(
+              url: x,
+              name: x.split('/')[-1],
+              modified: theAttrs['LastModifiedTimestamp'],
+              creation: theAttrs['CreatedTimestamp'],
+              retention: theAttrs['MessageRetentionPeriod'],
+              maxsize: theAttrs['MaximumMessageSize'],
+            )
+            z.save
+            SQSQueueRegion.create(from_node: z, to_node: Region.where(region: region).first)
+            SQSQueueAccount.create(from_node: z, to_node: AwsAccount.where(name: account[:name]).first)
+          end
+        end
+      end
+    end   
 
     def load_rds
       @cfg.accounts.each do |account|

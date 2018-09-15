@@ -17,4 +17,5 @@ module NeoInfra
   require 'neoinfra/vpcs'
   require 'neoinfra/nodes'
   require 'neoinfra/cloudwatch'
+  require 'neoinfra/graph'
 end
