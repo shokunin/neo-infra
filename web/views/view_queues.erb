@@ -15,11 +15,16 @@
     <tbody>
 <% queues.each do |queue| %>
 <tr>
+<% if queue['creation'] ==  queue['modified'] %>
+  <% @color = '00db19' %>
+<% else %>
+  <% @color = 'db001d' %>
+ <% end %>
 <td><%= queue['name'] %></td>
 <td><%= queue['owner'] %></td>
 <td><%= queue['region'] %></td>
 <td><%= queue['creation'] %></td>
-<td><%= queue['modified'] %></td>
+<td> <font color="#<%= @color %>"> <%= queue['modified'] %></font></td>
 <td><%= queue['maxsize'] %></td>
 </tr>
 <% end %>
