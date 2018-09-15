@@ -5,6 +5,7 @@ require 'regions'
 require 'mime-types'
 require 'fog-aws'
 require 's3'
+require 'sqs'
 require 'date'
 require 'ipaddr'
 require 'neo4j'
@@ -130,7 +131,7 @@ module NeoInfra
         end
       end
     end
-
+####
     def load_security_groups
       @cfg.accounts.each do |account|
         base_conf = {
@@ -338,6 +339,36 @@ module NeoInfra
         # end
       end
     end
+
+    def load_queues
+      aws = NeoInfra::Aws.new
+      cw = NeoInfra::Cloudwatch.new
+      @cfg.accounts.each do |account|
+        base_conf = {
+          aws_access_key_id: account[:key],
+          aws_secret_access_key: account[:secret]
+        }
+        aws.regions.each do |region|
+          region_conf = { region: region }
+          q = Fog::AWS::SQS.new(region_conf.merge(base_conf))
+          q.list_queues.data[:body]['QueueUrls'].each do |x|
+            next unless SQSQueue.where(url: x).empty?
+            theAttrs = q.get_queue_attributes(x, "All").data[:body]['Attributes']
+            z = SQSQueue.new(
+              url: x,
+              name: x.split('/')[-1],
+              modified: theAttrs['LastModifiedTimestamp'],
+              creation: theAttrs['CreatedTimestamp'],
+              retention: theAttrs['MessageRetentionPeriod'],
+              maxsize: theAttrs['MaximumMessageSize'],
+            )
+            z.save
+            SQSQueueRegion.create(from_node: z, to_node: Region.where(region: region).first)
+            SQSQueueAccount.create(from_node: z, to_node: AwsAccount.where(name: account[:name]).first)
+          end
+        end
+      end
+    end   
 
     def load_rds
       @cfg.accounts.each do |account|
