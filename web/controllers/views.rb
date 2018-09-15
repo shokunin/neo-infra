@@ -70,6 +70,17 @@ class Views < Sinatra::Base
     end
   end
 
+  get '/queues' do
+    j = NeoInfra::Aws.new
+    respond_to do |wants|
+      wants.html do
+        erb :view_queues,
+            layout: :base_layout,
+            locals: { queues: j.list_queues }
+      end
+    end
+  end
+
   get '/graph/:graph_type' do
     respond_to do |wants|
       wants.html do

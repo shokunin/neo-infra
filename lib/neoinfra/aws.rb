@@ -340,6 +340,23 @@ module NeoInfra
       end
     end
 
+
+    def list_queues
+      queues = []
+      SQSQueue.all.order('n.name DESC').each do |d|
+        queues << {
+          'name'      => d.name,
+          'modified'  => d.modified,
+          'creation'  => d.creation,
+          'retention' => d.retention,
+          'maxsize'   => d.maxsize,
+          'region'    => d.region.region,
+          'owner'     => d.owner.name
+        }
+      end
+      queues
+    end
+
     def load_queues
       aws = NeoInfra::Aws.new
       cw = NeoInfra::Cloudwatch.new

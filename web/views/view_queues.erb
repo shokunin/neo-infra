@@ -1,0 +1,28 @@
+<h2 class="title"><br><br><center>SQS Queues</center></h2>
+
+<div class="container">
+  <table class="table table-hover">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Owner</th>
+        <th>Region</th>
+        <th>Creation</th>
+        <th>Modified</th>
+        <th>Max Size</th>
+      </tr>
+    </thead>
+    <tbody>
+<% queues.each do |queue| %>
+<tr>
+<td><%= queue['name'] %></td>
+<td><%= queue['owner'] %></td>
+<td><%= queue['region'] %></td>
+<td><%= queue['creation'] %></td>
+<td><%= queue['modified'] %></td>
+<td><%= queue['maxsize'] %></td>
+</tr>
+<% end %>
+    </tbody>
+  </table>
+</div>

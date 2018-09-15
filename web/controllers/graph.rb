@@ -27,4 +27,10 @@ class Graph < Sinatra::Base
     g.graph_buckets
   end
 
+  get '/queues' do
+    headers('Content-Type' => "text/csv")
+    g = NeoInfra::Graph.new
+    g.graph_queues
+  end
+
 end

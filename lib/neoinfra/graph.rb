@@ -65,7 +65,29 @@ module NeoInfra
       end
       return csv_string.gsub('"', '')
     end
-       ##
+  
+    def graph_queues
+      csv_string = CSV.generate(force_quotes: false ) do |csv|
+        csv << ['id,value']
+        csv << ['aws,']
+        @cfg = NeoInfra::Config.new
+        @cfg.accounts.each do |account|
+          csv << ["aws.#{account[:name]},"]
+
+          SQSQueue.all.select{|x| x.owner.name == account[:name]}.collect{|y| y.region.region}.uniq.each do |region|
+            csv << ["aws.#{account[:name]}.#{region},"]
+          end
+
+          SQSQueue.all.each do |q|
+            if q.owner.name == account[:name]
+              csv << ["aws.#{account[:name]}.#{q.region.region}.#{q.name},1"]
+            end
+          end
+
+        end
+      end
+      return csv_string.gsub('"', '')
+    end 
 
   end
 end
